@@ -1,18 +1,38 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import type { ActionData, PageData } from './$types';
-	export let data: PageData;
 	export let form: ActionData;
 
+	let userName: string | null = '';
+	let userID: string | null = '';
+	let mounted = false;
+	onMount(() => {
+		// check local storage for a user tag
+		mounted = true;
+		userName = localStorage.getItem('userName');
+		userID = localStorage.getItem('userID');
+	});
+
+	$: {
+		if (form?.user && mounted) {
+			localStorage.setItem('userName', form.user.username);
+			localStorage.setItem('userID', form.user.id);
+			userName = form.user.username;
+		}
+	}
 </script>
 
-<h1>Welcome to Chat App</h1>
-{#if !form?.success}
-	<form action="?/createChat" method="POST">
-		<input type="text" name="name" placeholder="Chat Name" />
-		<input type="text" name="description" placeholder="Chat Description" />
-		<button type="submit"> Create Chat </button>
-	</form>
+<h1>Welcome to The Chat App</h1>
+
+{#if userName || form?.user}
+	<p>You are currently signed in as {userName || form?.user.username}</p>
+	<p>Click <a href="/chat">here</a> to go to create or join a chat</p>
 {:else}
-	Successfully Created Chat with name {form?.name} and url: /chat/{form.uuid}
-	<button><a href={`/chat/${form.uuid}`}>Launch Chat</a></button>
+	<p>No User Identifier has been found in your browser</p>
+	<p>Create one below</p>
+	<form action="?/createUser" method="POST">
+		<label for="name">User Identifier</label>
+		<input type="text" name="name" id="user" placeholder="Enter a user identifier" required />
+		<button type="submit" on:click={() => {}}>Create User</button>
+	</form>
 {/if}

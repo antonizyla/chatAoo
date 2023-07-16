@@ -22,14 +22,14 @@ var createTables = `
 
     CREATE TABLE IF NOT EXISTS users (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        username TEXT NOT NULL,
-        attached_chat UUID,
-        constraint fk_chat
-            foreign key(attached_chat)
-                REFERENCES chat(id)
+        username TEXT NOT NULL
     );
 
-
+    CREATE TABLE IF NOT EXISTS users_chat (
+        chat_id UUID REFERENCES chat(id),
+        user_id UUID REFERENCES users(id),
+        PRIMARY KEY (chat_id, user_id)
+    );
 
 `
 

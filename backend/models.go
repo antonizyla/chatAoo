@@ -14,5 +14,9 @@ type Chat struct {
 type User struct {
 	ID       string `json:"id" db:"id"`
 	Username string `json:"username" db:"username"`
-	Chat     string `json:"chat" db:"chat"`
+}
+
+type UserChat struct {
+	ChatID string `json:"chat_id" db:"chat_id"`
+	UserID string `json:"user_id" db:"user_id"`
 }

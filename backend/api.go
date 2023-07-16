@@ -48,16 +48,15 @@ func checkChat(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// create a new user using a username field nad return the user as a json object
 func createUser(w http.ResponseWriter, r *http.Request) {
 	user := User{
 		Username: r.URL.Query().Get("username"),
-        Chat: r.URL.Query().Get("chat"),
 	}
 
-	query := `Insert Into users (username, attached_chat) Values (@username, @chat) returning id`
+	query := `Insert Into users (username) Values (@username) returning id`
 	args := pgx.NamedArgs{
 		"username": user.Username,
-        "chat": user.Chat,
 	}
 
 	err := db.QueryRow(context.Background(), query, args).Scan(&user.ID)
@@ -66,14 +65,33 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(user)
 }
 
-func exampleApi(w http.ResponseWriter, r *http.Request) {
-	json.NewEncoder(w).Encode("Hello World")
+func linkChatAndUser(w http.ResponseWriter, r *http.Request) {
+	// get details of chat and user
+	chat := Chat{
+		ID: r.URL.Query().Get("chat"),
+	}
+	user := User{
+		ID: r.URL.Query().Get("user"),
+	}
+
+	query := `insert into users_chat (chat_id, user_id) values (@chat_id, @user_id) `
+	args := pgx.NamedArgs{
+		"chat_id": chat.ID,
+		"user_id": user.ID,
+	}
+
+	err := db.QueryRow(context.Background(), query, args).Scan()
+	if err != pgx.ErrNoRows {
+		http.ResponseWriter(w).WriteHeader(400)
+	} else {
+		http.ResponseWriter(w).WriteHeader(200)
+	}
 }
 
 func handleRequests() {
 	http.HandleFunc("/createChat", createChat)
-	http.HandleFunc("/exampleApi", exampleApi)
 	http.HandleFunc("/checkChat", checkChat)
-    http.HandleFunc("/createUser", createUser)
+	http.HandleFunc("/createUser", createUser)
+	http.HandleFunc("/linkChatAndUser", linkChatAndUser)
 	log.Fatal(http.ListenAndServe(":8081", nil))
 }

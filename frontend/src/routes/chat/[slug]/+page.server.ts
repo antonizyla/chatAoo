@@ -16,25 +16,3 @@ export const load = (async (event) => {
 
 }) satisfies PageServerLoad;
 
-export const actions: Actions = {
-
-    generateUser: async ({ request }) => {
-        const userData = await request.formData()
-
-        const username = userData.get("username");
-        const chatId = userData.get("chatID");
-
-        console.log(chatId)
-
-        const createdUser = await fetch(`http://localhost:8081/createUser?username=${username}&chat=${chatId}`).then(res => res.json());
-
-        if (createdUser.id) {
-            return { createdUser: createdUser, username: username, exists: true }
-        } else {
-            return { createdUser: null, username: null, exists: false }
-        }
-
-    }
-
-} satisfies Actions;
-
