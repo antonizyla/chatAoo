@@ -1,26 +1,37 @@
 package main
 
 import (
-	"database/sql"
+	"context"
 	"fmt"
-	"github.com/joho/godotenv"
-	_ "github.com/lib/pq"
 	"log"
 	"os"
 	"runtime"
+
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/joho/godotenv"
 )
 
 var createTables = `
     
     CREATE TABLE IF NOT EXISTS chat (
-        id UUID PRIMARY KEY,
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        description TEXT NOT NULL,
         name TEXT NOT NULL,
         created_at TIMESTAMP NOT NULL DEFAULT NOW()
     );
 
-`
+    CREATE TABLE IF NOT EXISTS users (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        username TEXT NOT NULL,
+        attached_chat UUID,
+        constraint fk_chat
+            foreign key(attached_chat)
+                REFERENCES chat(id)
+    );
 
-var db *sql.DB
+
+
+`
 
 func handleError(err error) {
 	if err != nil {
@@ -29,26 +40,28 @@ func handleError(err error) {
 	}
 }
 
+var db *pgxpool.Pool
+
 func init() {
 
 	er := godotenv.Load()
 	handleError(er)
 
-	connection := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Europe/London", os.Getenv("DB_HOST"), os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_NAME"), os.Getenv("DB_PORT"))
+	connection := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_HOST"), os.Getenv("DB_PORT"), os.Getenv("DB_NAME"))
 
-	DB, err := sql.Open("postgres", connection)
-	handleError(err)
-
-	err = DB.Ping()
+	dbpool, err := pgxpool.New(context.Background(), connection)
 	if err != nil {
+		fmt.Println("Error connecting to database")
+		log.Fatal(err)
+	}
+	db = dbpool
+
+	_, err = dbpool.Exec(context.Background(), createTables)
+	if err != nil {
+		fmt.Println("Error creating tables")
 		handleError(err)
 	} else {
-		fmt.Println("Connected to database Successfully")
+		fmt.Println("Tables created/updated to reflect schema")
 	}
-
-	_, err = DB.Exec(createTables)
-	handleError(err)
-
-	db = DB
 
 }
