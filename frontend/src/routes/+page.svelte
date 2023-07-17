@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import type { ActionData } from './$types';
-	import { chatId } from '$lib/stores';
+	import { enhance } from '$app/forms';
 	export let form: ActionData;
 
 	let userName: string | null = '';
@@ -36,7 +36,7 @@
 {:else}
 	<p>No User Identifier has been found in your browser</p>
 	<p>Create one below</p>
-	<form action="?/createUser" method="POST">
+	<form action="?/createUser" method="POST" use:enhance>
 		<label for="name">User Identifier</label>
 		<input type="text" name="name" id="user" placeholder="Enter a user identifier" required />
 		<button type="submit" on:click={() => {}}>Create User</button>

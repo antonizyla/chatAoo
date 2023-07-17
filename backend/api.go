@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/olahol/melody"
 )
 
 // create a new chat using a name and description field
@@ -89,9 +90,24 @@ func linkChatAndUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleRequests() {
+
+	m := melody.New()
+
+	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
+		m.HandleRequest(w, r)
+	})
+
+	m.HandleMessage(func(s *melody.Session, msg []byte) {
+		// perform work on msg - add to db etc
+		m.BroadcastFilter(msg, func(q *melody.Session) bool {
+			return q.Request.URL.Query().Get("chat_id") == s.Request.URL.Query().Get("chat_id")
+		})
+	})
+
 	http.HandleFunc("/createChat", createChat)
 	http.HandleFunc("/checkChat", checkChat)
 	http.HandleFunc("/createUser", createUser)
 	http.HandleFunc("/linkChatAndUser", linkChatAndUser)
+
 	log.Fatal(http.ListenAndServe(":8081", nil))
 }
