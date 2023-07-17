@@ -14,7 +14,6 @@
 
 		userID = localStorage.getItem('userID');
 		userName = localStorage.getItem('userName');
-		console.log(userID);
 		if (!userID) {
 			window.location.href = '/';
 			// create store to store chat of user

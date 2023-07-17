@@ -4,9 +4,16 @@
 	import { enhance } from '$app/forms';
 	export let form: ActionData;
 
+	let existingChats: any[] = [];
 	let userID: string | null;
-	onMount(() => {
+	onMount(async () => {
 		userID = localStorage.getItem('userID');
+		if (!userID) {
+			window.location.href = '/';
+		}
+		existingChats = await fetch(`http://localhost:8081/getUserChats?user_id=${userID}`).then(
+			(res) => res.json()
+		);
 	});
 </script>
 
@@ -28,4 +35,20 @@
 {:else}
 	Successfully joined Chat with name {form?.name} and url: /chat/{form.uuid}
 	<button><a href={`/chat/${form.uuid}`}>Launch Chat</a></button>
+{/if}
+
+{#if existingChats.length > 0}
+	<h2>Chats you're already in</h2>
+	{#each existingChats as chat}
+		<div class="">
+			<p>Name: {chat.name}, Description: {chat.description}</p>
+			<button><a href={`/chat/${chat.id}`}>Launch Chat</a></button>
+			<button
+				on:click={() => {
+					existingChats = existingChats.filter((c) => c.id !== chat.id);
+					fetch(`http://localhost:8081/leaveChat?user_id=${userID}&chat_id=${chat.id}`);
+				}}>Leave Chat</button
+			>
+		</div>
+	{/each}
 {/if}

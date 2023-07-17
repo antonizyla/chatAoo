@@ -87,15 +87,15 @@ func getMessages(w http.ResponseWriter, r *http.Request) {
 		if err != pgx.ErrNoRows {
 			handleError(err)
 		}
-        tmpMap := map[string]interface{}{
-            "id": tmp.ID,
-            "chat_id": tmp.ChatID,
-            "sender_id": tmp.SenderID,
-            "content": tmp.Content,
-            "created_at": tmp.Created_At,
-            "sender_name": getUsernameFromID(tmp.SenderID),
-        }
-        res = append(res, tmpMap)
+		tmpMap := map[string]interface{}{
+			"id":          tmp.ID,
+			"chat_id":     tmp.ChatID,
+			"sender_id":   tmp.SenderID,
+			"content":     tmp.Content,
+			"created_at":  tmp.Created_At,
+			"sender_name": getUsernameFromID(tmp.SenderID),
+		}
+		res = append(res, tmpMap)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -125,6 +125,48 @@ func linkChatAndUser(w http.ResponseWriter, r *http.Request) {
 	} else {
 		http.ResponseWriter(w).WriteHeader(200)
 	}
+}
+
+// get the chats that a user is in
+func getUserChats(w http.ResponseWriter, r *http.Request) {
+	user_id := r.URL.Query().Get("user_id")
+
+	query := `select id, description, name,created_at from chat where id in (Select chat_id From users_chat Where user_id = @user_id)`
+	args := pgx.NamedArgs{
+		"user_id": user_id,
+	}
+
+	rows, err := db.Query(context.Background(), query, args)
+	handleError(err)
+
+	res := make([]Chat, 0, 0)
+	for rows.Next() {
+		var chat Chat
+		err := rows.Scan(&chat.ID, &chat.Description, &chat.Name, &chat.Created_At)
+		handleError(err)
+        res = append(res, chat)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	json.NewEncoder(w).Encode(res)
+}
+
+func leaveChat(w http.ResponseWriter, r *http.Request) {
+    chat_id := r.URL.Query().Get("chat_id")
+    user_id := r.URL.Query().Get("user_id")
+
+    query := `Delete From users_chat Where chat_id = @chat_id And user_id = @user_id`
+    args := pgx.NamedArgs{
+        "chat_id": chat_id,
+        "user_id": user_id,
+    }
+
+    _, err := db.Exec(context.Background(), query, args)
+    handleError(err)
+
+    w.Header().Set("Access-Control-Allow-Origin", "*")
+    w.WriteHeader(200)
 }
 
 // get the name of a user from their id
@@ -200,6 +242,8 @@ func handleRequests() {
 	http.HandleFunc("/createUser", createUser)
 	http.HandleFunc("/linkChatAndUser", linkChatAndUser)
 	http.HandleFunc("/getMessages", getMessages)
+	http.HandleFunc("/getUserChats", getUserChats)
+    http.HandleFunc("/leaveChat", leaveChat)
 
 	log.Fatal(http.ListenAndServe(":8081", nil))
 }
