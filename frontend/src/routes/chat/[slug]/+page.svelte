@@ -6,18 +6,9 @@
 	let userID: string | null = null;
 	let userName: string | null = null;
 
-	let msg: string = '';
-
 	let ws: WebSocket;
 
-	type msg = {
-		msgId: string;
-		content: string;
-		sender: string;
-		chatID: string;
-	};
-
-	onMount(() => {
+	onMount(async () => {
 		// check if user exists on browser
 		// if not, redirect to login page
 
@@ -29,6 +20,17 @@
 			// create store to store chat of user
 			localStorage.setItem('chatId', data.chat.id);
 		} else {
+			// load in the chats for the user
+			const apiQuery = `http://localhost:8081/getMessages?chat_id=${
+				data.chat.id
+			}&timestamp=${Date.now()}`;
+			console.log(apiQuery);
+			const prevMessages = await fetch(
+				`http://localhost:8081/getMessages?chat_id=${data.chat.id}&timestamp=${Date.now()}`
+			).then((res) => res.json());
+
+			messages = [...messages, prevMessages][0];
+
 			// websockets
 			ws = new WebSocket('ws://localhost:8081/ws?userID=' + userID + '&chat_id=' + data.chat.id);
 			ws.onmessage = (event) => {
@@ -37,7 +39,31 @@
 		}
 	});
 
+	type msg = {
+		msg_id: string;
+		content: string;
+		sender_id: string;
+		chat: string;
+		sender_name: string;
+		created_at: string;
+	};
 	let messages: msg[] = [];
+	let msg: string = '';
+
+	function sendMessage() {
+		if (msg != '') {
+			ws.send(
+				JSON.stringify({
+					content: msg,
+					sender_id: userID,
+					chat_id: data.chat.id
+				})
+			);
+			msg = '';
+		}
+	}
+
+	import Message from '$lib/Message.svelte';
 </script>
 
 <!-- svelte-ignore non-top-level-reactive-declaration -->
@@ -46,7 +72,12 @@
 		.description}' You are currently logged in as '{userName}' with id '{userID}'
 
 	{#each messages as message}
-		<p>{message.content} from {message.sender}</p>
+		<Message
+			sender_name={message.sender_name}
+			content={message.content}
+			time={message.created_at}
+			alignRight={message.sender_id == userID}
+		/>
 	{/each}
 
 	<input
@@ -55,18 +86,12 @@
 		id="msg"
 		bind:value={msg}
 		on:keydown={(e) => {
-			if (e.keyCode === 13 && msg != '') {
-				let message = {
-					msgId: '',
-					content: msg,
-					sender: userID,
-					chatID: data.chat.id
-				};
-				ws.send(JSON.stringify(message));
-				msg = '';
+			if (e.key === 'Enter' && msg != '') {
+				sendMessage();
 			}
 		}}
 	/>
+	<button on:click={sendMessage}>SEND</button>
 {:else}
 	<h1>404</h1>
 	<p>Chat does not exist</p>
