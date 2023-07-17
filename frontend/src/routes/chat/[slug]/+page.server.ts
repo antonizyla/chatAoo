@@ -1,6 +1,4 @@
-import type { PageServerLoad } from "./$types"
-
-import type { Actions } from "@sveltejs/kit";
+import type { PageLoad } from "./$types"
 
 export const load = (async (event) => {
     const chatId = event.params.slug;
@@ -14,5 +12,5 @@ export const load = (async (event) => {
         return { chat: null, exists: false }
     }
 
-}) satisfies PageServerLoad;
+}) satisfies PageLoad;
 

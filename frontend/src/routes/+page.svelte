@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import type { ActionData, PageData } from './$types';
+	import type { ActionData } from './$types';
+	import { chatId } from '$lib/stores';
 	export let form: ActionData;
 
 	let userName: string | null = '';
@@ -18,6 +19,11 @@
 			localStorage.setItem('userName', form.user.username);
 			localStorage.setItem('userID', form.user.id);
 			userName = form.user.username;
+			const chatId = localStorage.getItem('chatId');
+			if (chatId) {
+				window.location.href = `/chat/${chatId}`;
+				localStorage.removeItem('chatId');
+			}
 		}
 	}
 </script>
