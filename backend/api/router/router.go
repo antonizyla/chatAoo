@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"backend/api/resource/messages"
 	"backend/api/resource/user"
 
 	"github.com/go-chi/chi/v5"
@@ -19,8 +20,13 @@ func New(db *pgxpool.Pool) *chi.Mux {
 
 	// users
 	usersApi := user.New(db)
-	router.Post("/users/{name}", usersApi.Create)
+	router.Post("/users", usersApi.Create)
 	router.Get("/users/{id}", usersApi.Get)
+	router.Put("/users/link", usersApi.Link)
+
+	// messages
+	messageApi := message.New(db)
+	router.Post("/messages", messageApi.Create)
 
 	return router
 

@@ -3,6 +3,6 @@ CREATE TABLE IF NOT EXISTS messages (
         content TEXT NOT NULL,
         created_at TIMESTAMP NOT NULL DEFAULT NOW(),
         chat_id UUID REFERENCES chat(id),
-        sender_id UUID REFERENCES users(id)
+        user_id UUID REFERENCES users(id)
     );
 

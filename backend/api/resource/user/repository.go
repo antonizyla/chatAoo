@@ -23,7 +23,7 @@ func (r *Repository) createUser(name string) (usr User, err error) {
 	var user User
 	user.Name = name
 
-	query := `Insert into users (name) values (@name) returning id`
+	query := `Insert into users (username) values (@name) returning id`
 	params := pgx.NamedArgs{
 		"name": name,
 	}
@@ -39,8 +39,9 @@ func (r *Repository) createUser(name string) (usr User, err error) {
 	return user, nil
 }
 
-func (r *Repository) linkChatAndUser(chatId string, userId string) (err error) {
-	query := `Insert into user_chat (chat_id, user_id) values (@chat_id, @user_id)`
+func (r *Repository) linkChatAndUser(chatId uuid.UUID, userId uuid.UUID) (err error) {
+
+	query := `Insert into users_chat (chat_id, user_id) values (@chat_id, @user_id)`
 	params := pgx.NamedArgs{
 		"chat_id": chatId,
 		"user_id": userId,

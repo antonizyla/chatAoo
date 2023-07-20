@@ -2,6 +2,7 @@ package user
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -9,7 +10,20 @@ import (
 )
 
 func (a *API) Create(w http.ResponseWriter, r *http.Request) {
-	created, err := a.repo.createUser(r.FormValue("name"))
+	var user User
+
+	err := json.NewDecoder(r.Body).Decode(&user)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if user.Name == "" {
+		http.Error(w, "name is empty", http.StatusBadRequest)
+		return
+	}
+
+	created, err := a.repo.createUser(user.Name)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -18,13 +32,21 @@ func (a *API) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *API) Link(w http.ResponseWriter, r *http.Request) {
-	err := a.repo.linkChatAndUser(r.FormValue("chat_id"), r.FormValue("user_id"))
+
+	// get chat id and user id from request json body
+	var link Link
+	err := json.NewDecoder(r.Body).Decode(&link)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err = a.repo.linkChatAndUser(link.ChatID, link.UserID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	http.ResponseWriter(w).WriteHeader(http.StatusOK)
-	http.ResponseWriter(w).Write([]byte("OK"))
 }
 
 func (a *API) Get(w http.ResponseWriter, r *http.Request) {
