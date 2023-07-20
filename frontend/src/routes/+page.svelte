@@ -28,8 +28,6 @@
 	}
 </script>
 
-<h1>Welcome to The Chat App</h1>
-
 {#if userName || form?.user}
 	<p>You are currently signed in as {userName || form?.user.username}</p>
 	<p>Click <a href="/chat">here</a> to go to create or join a chat</p>

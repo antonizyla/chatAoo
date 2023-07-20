@@ -15,6 +15,8 @@
 			(res) => res.json()
 		);
 	});
+
+	let copiedLink = false;
 </script>
 
 <h1>Welcome to Chat App</h1>
@@ -48,6 +50,11 @@
 					existingChats = existingChats.filter((c) => c.id !== chat.id);
 					fetch(`http://localhost:8081/leaveChat?user_id=${userID}&chat_id=${chat.id}`);
 				}}>Leave Chat</button
+			>
+			<button
+				on:click={() => {
+					navigator.clipboard.write(chat.id);
+				}}>Share Chat ID</button
 			>
 		</div>
 	{/each}
