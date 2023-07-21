@@ -3,7 +3,6 @@
 
 	function send() {
 		if (value) {
-			console.log(value);
 			value = null;
 		}
 	}

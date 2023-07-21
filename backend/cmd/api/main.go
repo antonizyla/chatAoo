@@ -15,6 +15,13 @@ import (
 // create global database pool
 var DB *pgxpool.Pool
 
+//	@title			Chat App API
+//	@version		1.0
+//	@description	Server API for Chat App
+//	@license.name	MIT License
+//	@host			localhost:8081
+//	@BasePath		/
+
 func main() {
 
 	// handle database
@@ -24,8 +31,8 @@ func main() {
 	}
 	DB = database
 	defer DB.Close()
-	
-    r := router.New(DB)
+
+	r := router.New(DB)
 
 	s := http.Server{
 		Addr:    ":8081",

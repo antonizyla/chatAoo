@@ -39,22 +39,6 @@ func (r *Repository) createUser(name string) (usr User, err error) {
 	return user, nil
 }
 
-func (r *Repository) linkChatAndUser(chatId uuid.UUID, userId uuid.UUID) (err error) {
-
-	query := `Insert into users_chat (chat_id, user_id) values (@chat_id, @user_id)`
-	params := pgx.NamedArgs{
-		"chat_id": chatId,
-		"user_id": userId,
-	}
-
-	_, er := r.DB.Exec(context.Background(), query, params)
-	if er != nil {
-		return er
-	}
-
-	return nil
-}
-
 func (r *Repository) getFromUsername(username string) (usr User, err error) {
 	var user User
 
@@ -92,4 +76,35 @@ func (r *Repository) getFromUserID(userId string) (usr User, err error) {
 	}
 
 	return user, nil
+}
+
+func (r *Repository) getLinkedChats(userId string) (links []Link, err error) {
+
+	userID, err := uuid.FromString(userId)
+	if err != nil {
+		return []Link{}, err
+	}
+
+	query := `select chat_id, user_id from users_chat where user_id = @user_id`
+	params := pgx.NamedArgs{
+		"user_id": userID,
+	}
+
+	rows, er := r.DB.Query(context.Background(), query, params)
+	if er != nil {
+		return []Link{}, er
+	}
+
+	// scan each row for a chat id and add to link list
+	for rows.Next() {
+		var link Link
+		err = rows.Scan(&link.ChatID, &link.UserID)
+		if err != nil {
+			return []Link{}, err
+		}
+		links = append(links, link)
+	}
+
+	return links, nil
+
 }

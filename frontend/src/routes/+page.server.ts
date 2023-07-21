@@ -5,11 +5,12 @@ export const actions = {
     createUser: async ({ request }) => {
         // will create a new chat in database and return uuid
         const data = await request.formData();
-        const name = data.get("name");
+        const username = data.get("name");
 
-        // create a request to api to get new chat uuid
-        let user = await fetch(`http://localhost:8081/createUser?username=${name}`).then(res => res.json());
-
+        let user = await fetch(
+            "http://localhost:8081/users",
+            { method: "POST", body: JSON.stringify({ "name": username }) }
+        ).then(res => res.json());
         return { user }
     }
 

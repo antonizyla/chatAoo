@@ -144,7 +144,7 @@ func getUserChats(w http.ResponseWriter, r *http.Request) {
 		var chat Chat
 		err := rows.Scan(&chat.ID, &chat.Description, &chat.Name, &chat.Created_At)
 		handleError(err)
-        res = append(res, chat)
+		res = append(res, chat)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -153,20 +153,20 @@ func getUserChats(w http.ResponseWriter, r *http.Request) {
 }
 
 func leaveChat(w http.ResponseWriter, r *http.Request) {
-    chat_id := r.URL.Query().Get("chat_id")
-    user_id := r.URL.Query().Get("user_id")
+	chat_id := r.URL.Query().Get("chat_id")
+	user_id := r.URL.Query().Get("user_id")
 
-    query := `Delete From users_chat Where chat_id = @chat_id And user_id = @user_id`
-    args := pgx.NamedArgs{
-        "chat_id": chat_id,
-        "user_id": user_id,
-    }
+	query := `Delete From users_chat Where chat_id = @chat_id And user_id = @user_id`
+	args := pgx.NamedArgs{
+		"chat_id": chat_id,
+		"user_id": user_id,
+	}
 
-    _, err := db.Exec(context.Background(), query, args)
-    handleError(err)
+	_, err := db.Exec(context.Background(), query, args)
+	handleError(err)
 
-    w.Header().Set("Access-Control-Allow-Origin", "*")
-    w.WriteHeader(200)
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.WriteHeader(200)
 }
 
 // get the name of a user from their id
@@ -212,16 +212,6 @@ func handleRequests() {
 			handleError(err)
 		}
 
-		/* broadcasted format will be
-		   {
-		       "chat_id": string,
-		       "sender_id": string,
-		       "content": string,
-		       "created_at": string,
-		       "sender_name": string,
-		   }
-		*/
-
 		res := map[string]interface{}{
 			"chat_id":     ms.ChatID,
 			"sender_id":   ms.SenderID,
@@ -243,7 +233,7 @@ func handleRequests() {
 	http.HandleFunc("/linkChatAndUser", linkChatAndUser)
 	http.HandleFunc("/getMessages", getMessages)
 	http.HandleFunc("/getUserChats", getUserChats)
-    http.HandleFunc("/leaveChat", leaveChat)
+	http.HandleFunc("/leaveChat", leaveChat)
 
 	log.Fatal(http.ListenAndServe(":8081", nil))
 }

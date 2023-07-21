@@ -23,7 +23,6 @@
 			const apiQuery = `http://localhost:8081/getMessages?chat_id=${
 				data.chat.id
 			}&timestamp=${Date.now()}`;
-			console.log(apiQuery);
 			const prevMessages = await fetch(
 				`http://localhost:8081/getMessages?chat_id=${data.chat.id}&timestamp=${Date.now()}`
 			).then((res) => res.json());

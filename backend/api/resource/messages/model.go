@@ -13,3 +13,8 @@ type Message struct {
 	ChatId    uuid.UUID `json:"chat_id"`
 	UserId    uuid.UUID `json:"user_id"`
 }
+
+type SentMessage struct {
+	Message  Message `json:"message"`
+	UserName string  `json:"user_name"`
+}

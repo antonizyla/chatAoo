@@ -10,9 +10,11 @@
 		userID = localStorage.getItem('userID');
 		if (!userID) {
 			window.location.href = '/';
+			return;
 		}
-		existingChats = await fetch(`http://localhost:8081/getUserChats?user_id=${userID}`).then(
-			(res) => res.json()
+		// get chats that the user is inside of
+		existingChats = await fetch(`http://localhost:8081/chats/linked/${userID}`).then((res) =>
+			res.json()
 		);
 	});
 
@@ -35,8 +37,8 @@
 		<button type="submit">Join Chat</button>
 	</form>
 {:else}
-	Successfully joined Chat with name {form?.name} and url: /chat/{form.uuid}
-	<button><a href={`/chat/${form.uuid}`}>Launch Chat</a></button>
+	Successfully joined Chat with name {form?.name} and url: /chat/{form.chat_id}
+	<button><a href={`/chat/${form.chat_id}`}>Launch Chat</a></button>
 {/if}
 
 {#if existingChats.length > 0}
@@ -48,12 +50,13 @@
 			<button
 				on:click={() => {
 					existingChats = existingChats.filter((c) => c.id !== chat.id);
-					fetch(`http://localhost:8081/leaveChat?user_id=${userID}&chat_id=${chat.id}`);
+					// api call to remove from database
 				}}>Leave Chat</button
 			>
 			<button
 				on:click={() => {
-					navigator.clipboard.write(chat.id);
+			        // write to clipboard	
+                    navigator.clipboard.writeText(chat.id);
 				}}>Share Chat ID</button
 			>
 		</div>

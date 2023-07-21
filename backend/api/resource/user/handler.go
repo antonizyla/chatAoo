@@ -2,7 +2,6 @@ package user
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -31,24 +30,6 @@ func (a *API) Create(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(created)
 }
 
-func (a *API) Link(w http.ResponseWriter, r *http.Request) {
-
-	// get chat id and user id from request json body
-	var link Link
-	err := json.NewDecoder(r.Body).Decode(&link)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	err = a.repo.linkChatAndUser(link.ChatID, link.UserID)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	http.ResponseWriter(w).WriteHeader(http.StatusOK)
-}
-
 func (a *API) Get(w http.ResponseWriter, r *http.Request) {
 	param := chi.URLParam(r, "id")
 
@@ -69,4 +50,23 @@ func (a *API) Get(w http.ResponseWriter, r *http.Request) {
 		}
 		json.NewEncoder(w).Encode(user)
 	}
+}
+
+func (a *API) UsersChats(w http.ResponseWriter, r *http.Request) {
+	param := chi.URLParam(r, "id")
+	_, err := a.repo.getFromUserID(param)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	chats, err := a.repo.getLinkedChats(param)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// add cors header to *
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(chats)
 }

@@ -16,8 +16,8 @@
 
 	$: {
 		if (form?.user && mounted) {
-			localStorage.setItem('userName', form.user.username);
-			localStorage.setItem('userID', form.user.id);
+			localStorage.setItem('userName', form.user.name);
+			localStorage.setItem('userID', form.user.user_id);
 			userName = form.user.username;
 			const chatId = localStorage.getItem('chatId');
 			if (chatId) {
@@ -29,7 +29,7 @@
 </script>
 
 {#if userName || form?.user}
-	<p>You are currently signed in as {userName || form?.user.username}</p>
+	<p>You are currently signed in as {userName || form?.user.name}</p>
 	<p>Click <a href="/chat">here</a> to go to create or join a chat</p>
 {:else}
 	<p>No User Identifier has been found in your browser</p>

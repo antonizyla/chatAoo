@@ -1,2 +1,2 @@
 all:
-	CompileDaemon -command="./chatApp.backend"
+	CompileDaemon -build="go build cmd/api/main.go" -command="./main" -color=true
