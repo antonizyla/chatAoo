@@ -20,17 +20,18 @@
 			localStorage.setItem('chatId', data.chat.id);
 		} else {
 			// load in the chats for the user
-			const apiQuery = `http://localhost:8081/getMessages?chat_id=${
-				data.chat.id
-			}&timestamp=${Date.now()}`;
+
 			const prevMessages = await fetch(
-				`http://localhost:8081/getMessages?chat_id=${data.chat.id}&timestamp=${Date.now()}`
+				`http://localhost:8081/messages/${data.chat.id}/${Date.now()}`,
+				{ method: 'GET' }
 			).then((res) => res.json());
+
+			console.log(prevMessages);
 
 			messages = [...messages, prevMessages][0];
 
 			// websockets
-			ws = new WebSocket('ws://localhost:8081/ws?userID=' + userID + '&chat_id=' + data.chat.id);
+			ws = new WebSocket('ws://localhost:8081/ws?user_id=' + userID + '&chat_id=' + data.chat.id);
 			ws.onmessage = (event) => {
 				messages = [...messages, JSON.parse(event.data)];
 			};
@@ -39,7 +40,7 @@
 
 	type msg = {
 		msg_id: string;
-		content: string;
+		body: string;
 		sender_id: string;
 		chat: string;
 		sender_name: string;
@@ -50,13 +51,9 @@
 
 	function sendMessage() {
 		if (msg != '') {
-			ws.send(
-				JSON.stringify({
-					content: msg,
-					sender_id: userID,
-					chat_id: data.chat.id
-				})
-			);
+			let stringRep = JSON.stringify({ body: msg, user_id: userID, chat_id: data.chat.id });
+			ws.send(stringRep);
+			console.log(stringRep);
 			msg = '';
 		}
 	}
@@ -72,7 +69,7 @@
 	{#each messages as message}
 		<Message
 			sender_name={message.sender_name}
-			content={message.content}
+			body={message.body}
 			time={message.created_at}
 			alignRight={message.sender_id == userID}
 		/>

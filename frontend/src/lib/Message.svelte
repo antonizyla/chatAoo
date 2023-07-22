@@ -1,6 +1,6 @@
 <script lang="ts">
 	export let sender_name: string;
-	export let content: string;
+	export let body: string;
 	export let time: string;
 	export let alignRight: boolean = false;
 
@@ -13,7 +13,7 @@
 		{sender_name}
 	</div>
 	<div class="content">
-		{content}
+		{body}
 	</div>
 	<div class="date">
 		{displayTime}

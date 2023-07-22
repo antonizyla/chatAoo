@@ -11,6 +11,8 @@ export const actions = {
             "http://localhost:8081/users",
             { method: "POST", body: JSON.stringify({ "name": username }) }
         ).then(res => res.json());
+
+        console.log(user)
         return { user }
     }
 

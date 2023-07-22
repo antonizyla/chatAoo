@@ -29,7 +29,7 @@
 </script>
 
 {#if userName || form?.user}
-	<p>You are currently signed in as {userName || form?.user.name}</p>
+	<p class="">You are currently signed in as {userName || form?.user.name}</p>
 	<p>Click <a href="/chat">here</a> to go to create or join a chat</p>
 {:else}
 	<p>No User Identifier has been found in your browser</p>
