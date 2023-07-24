@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -67,7 +68,7 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func getMessages(w http.ResponseWriter, r *http.Request) {
-	timestamp := r.URL.Query().Get("timestamp")
+	timestamp := r.URL.Query().Get("time_from")
 	chatID := r.URL.Query().Get("chat_id")
 
 	query := `Select id, chat_id, sender_id, content, created_at From messages Where chat_id = @chat_id And created_at < to_timestamp(@timestamp) And chat_id IS NOT NULL LIMIT 100`
@@ -198,14 +199,18 @@ func handleRequests() {
 
 		var ms Message
 		err := json.Unmarshal(msg, &ms)
-		handleError(err)
-
-		query := `Insert Into messages (chat_id, sender_id, content) Values (@chat_id, @sender_id, @content) returning id, created_at`
-		args := pgx.NamedArgs{
-			"chat_id":   ms.ChatID,
-			"sender_id": ms.SenderID,
-			"content":   ms.Content,
+		if err != nil {
+			log.Fatal(err)
 		}
+
+		query := `Insert Into messages (chat_id, user_id, meesage_body) Values (@chat_id, @user_id, @message_body) returning id, created_at`
+		args := pgx.NamedArgs{
+			"chat_id":      ms.ChatID,
+			"user_id":      ms.SenderID,
+			"message_body": ms.Content,
+		}
+
+		err = db.QueryRow(context.Background(), query).Scan(&ms.ID, &ms.Created_At)
 
 		err = db.QueryRow(context.Background(), query, args).Scan(&ms.ID, &ms.Created_At)
 		if err != pgx.ErrNoRows {

@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"backend/api/resource/chat"
-	"backend/api/resource/messages"
+	message "backend/api/resource/messages"
 	"backend/api/resource/user"
 
 	"github.com/go-chi/chi/v5"
@@ -29,7 +29,8 @@ func New(db *pgxpool.Pool) *chi.Mux {
 	// messages
 	m := melody.New()
 	messageApi := message.New(db)
-	router.Post("/messages", messageApi.Create)
+	//router.Post("/messages", messageApi.Create)
+	router.Get("/messages/{chat_id}/{time_from}", messageApi.GetMessages)
 	router.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		m.HandleRequest(w, r)
 	})
@@ -44,6 +45,7 @@ func New(db *pgxpool.Pool) *chi.Mux {
 	router.Get("/chats/linked/{user_id}", chatApi.ChatsLinkedToUser)
 	router.Delete("/chats/link/{chat_id}/{user_id}", chatApi.DeleteChatLink)
 	router.Post("/chats/link", chatApi.Link)
+	router.Get("/chats/{chat_id}/users", chatApi.GetUsersInChat)
 
 	return router
 

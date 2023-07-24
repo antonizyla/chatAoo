@@ -56,8 +56,8 @@ func (a *API) ChatsLinkedToUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	http.Header.Set(w.Header(), "Content-Type", "application/json")
-	http.Header.Set(w.Header(), "Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	json.NewEncoder(w).Encode(chats)
 }
 
@@ -79,7 +79,7 @@ func (a *API) DeleteChatLink(w http.ResponseWriter, r *http.Request) {
 	err = a.repo.DeleteChatLink(chatUUID, userUUID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
-        return
+		return
 	}
 	w.WriteHeader(http.StatusOK)
 }
@@ -100,4 +100,26 @@ func (a *API) Link(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	http.ResponseWriter(w).WriteHeader(http.StatusOK)
+}
+
+func (a *API) GetUsersInChat(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	// get chat id from Request
+	chat_id := chi.URLParam(r, "chat_id")
+	chatUUID, err := uuid.FromString(chat_id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	users, err := a.repo.GetUsersInChat(chatUUID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	json.NewEncoder(w).Encode(users)
+
 }

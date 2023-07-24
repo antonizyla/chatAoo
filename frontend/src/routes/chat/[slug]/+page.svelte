@@ -8,6 +8,9 @@
 
 	let ws: WebSocket;
 
+	let messages: any[] = [];
+	let users = new Map<string, string>();
+
 	onMount(async () => {
 		// check if user exists on browser
 		// if not, redirect to login page
@@ -20,45 +23,56 @@
 			localStorage.setItem('chatId', data.chat.id);
 		} else {
 			// load in the chats for the user
-
 			const prevMessages = await fetch(
 				`http://localhost:8081/messages/${data.chat.id}/${Date.now()}`,
 				{ method: 'GET' }
 			).then((res) => res.json());
 
-			console.log(prevMessages);
+			// load the users that are currently in the chat
+			const prevUsers = await fetch(`http://localhost:8081/chats/${data.chat.id}/users`, {
+				method: 'GET'
+			}).then((res) => res.json());
+
+			prevUsers.map((item: { user_name: string; user_id: string }) => {
+				// @ts-ignore
+				users[item.user_id] = item.user_name;
+			});
 
 			messages = [...messages, prevMessages][0];
 
 			// websockets
 			ws = new WebSocket('ws://localhost:8081/ws?user_id=' + userID + '&chat_id=' + data.chat.id);
-			ws.onmessage = (event) => {
+			ws.onmessage = async (event) => {
+				// @ts-ignore
 				messages = [...messages, JSON.parse(event.data)];
+                console.log(event.data)
+				if (!users.has(event.data.user_id)) {
+					const user = await fetch(`http://localhost:8081/users/${event.data.user_id}`, {
+						method: 'GET'
+					}).then((res) => res.json());
+					users.set(event.data.user_id, user.name);
+				}
 			};
 		}
 	});
 
-	type msg = {
-		msg_id: string;
-		body: string;
-		sender_id: string;
-		chat: string;
-		sender_name: string;
-		created_at: string;
-	};
-	let messages: msg[] = [];
 	let msg: string = '';
 
 	function sendMessage() {
 		if (msg != '') {
-			let stringRep = JSON.stringify({ body: msg, user_id: userID, chat_id: data.chat.id });
-			ws.send(stringRep);
-			console.log(stringRep);
+			const payload = {
+				action_type: 'newMessage',
+				chat_id: data.chat.id,
+				user_id: userID,
+				message: msg
+			};
+			ws.send(JSON.stringify(payload));
 			msg = '';
 		}
 	}
 
 	import Message from '$lib/Message.svelte';
+	import { json } from '@sveltejs/kit';
 </script>
 
 <!-- svelte-ignore non-top-level-reactive-declaration -->
@@ -68,7 +82,7 @@
 
 	{#each messages as message}
 		<Message
-			sender_name={message.sender_name}
+			sender_name={users[message.user_id]}
 			body={message.body}
 			time={message.created_at}
 			alignRight={message.sender_id == userID}
@@ -77,6 +91,7 @@
 
 	<input
 		type="text"
+		class="border-gray-400 border"
 		name="msg"
 		id="msg"
 		bind:value={msg}

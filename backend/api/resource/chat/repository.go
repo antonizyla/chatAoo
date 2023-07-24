@@ -97,3 +97,28 @@ func (r *Repository) linkChatAndUser(chatId uuid.UUID, userId uuid.UUID) (err er
 
 	return nil
 }
+
+func (r *Repository) GetUsersInChat(chatId uuid.UUID) (usrs []User, err error) {
+
+	query := `select id, username from users where id in (select user_id from users_chat where chat_id = @chat_id)`
+	params := pgx.NamedArgs{
+		"chat_id": chatId,
+	}
+
+	rows, err := r.DB.Query(context.Background(), query, params)
+	if err != nil {
+		return nil, err
+	}
+
+	users := []User{}
+	for rows.Next() {
+		var user User
+		err = rows.Scan(&user.UserID, &user.UserName)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+	return users, nil
+
+}

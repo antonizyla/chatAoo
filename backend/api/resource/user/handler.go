@@ -9,6 +9,9 @@ import (
 )
 
 func (a *API) Create(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
 	var user User
 
 	err := json.NewDecoder(r.Body).Decode(&user)
@@ -31,7 +34,10 @@ func (a *API) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *API) Get(w http.ResponseWriter, r *http.Request) {
-	param := chi.URLParam(r, "id")
+	w.Header().Set("Content-Type", "application/json")
+    w.Header().Set("Access-Control-Allow-Origin", "*")
+
+    param := chi.URLParam(r, "id")
 
 	if len(param) == len(uuid.UUID{}.String()) {
 		// get user by id
