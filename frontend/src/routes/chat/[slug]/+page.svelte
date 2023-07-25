@@ -44,13 +44,15 @@
 			ws = new WebSocket('ws://localhost:8081/ws?user_id=' + userID + '&chat_id=' + data.chat.id);
 			ws.onmessage = async (event) => {
 				// @ts-ignore
-				messages = [...messages, JSON.parse(event.data)];
-                console.log(event.data)
-				if (!users.has(event.data.user_id)) {
-					const user = await fetch(`http://localhost:8081/users/${event.data.user_id}`, {
+				const wsMessage = JSON.parse(event.data);
+				messages = [...messages, wsMessage];
+				if (!users.has(wsMessage.user_id)) {
+					const user = await fetch(`http://localhost:8081/users/${wsMessage.user_id}`, {
 						method: 'GET'
 					}).then((res) => res.json());
-					users.set(event.data.user_id, user.name);
+					// @ts-ignore
+					users[user.user_id] = user.name;
+					messages = messages;
 				}
 			};
 		}

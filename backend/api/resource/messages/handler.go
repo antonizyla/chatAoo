@@ -37,7 +37,6 @@ func (a *API) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *API) MessageWebsockets(s *melody.Session, msg []byte, lm *melody.Melody) {
-	fmt.Println("Got inside of websockets handler")
 
 	/*
 				        Things that the user can do inside of a chat:
@@ -95,7 +94,6 @@ func (a *API) MessageWebsockets(s *melody.Session, msg []byte, lm *melody.Melody
 		}
 
 		createdMessage, err := a.repo.Create(message)
-		fmt.Println(createdMessage)
 		if err != nil {
 			msg, _ = json.Marshal(`{"Status": "Error occurred creating message"}`)
 		}
