@@ -12,6 +12,22 @@ import (
 	"github.com/olahol/melody"
 )
 
+func (a *API) DeleteMessage(w http.ResponseWriter, r *http.Request) {
+	message_id := chi.URLParam(r, "message_id")
+	msgUUID, err := uuid.FromString(message_id)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Provided parameter seems to be malformed, %v", err.Error()), http.StatusBadRequest)
+		return
+	}
+	err = a.repo.Delete(msgUUID)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error deleting message, %v", err.Error()), http.StatusInternalServerError)
+		return
+	}
+	http.ResponseWriter(w).WriteHeader(http.StatusOK)
+
+}
+
 func (a *API) Create(w http.ResponseWriter, r *http.Request) {
 	// decode body into message
 	// expects body, chat_id, user_id
@@ -32,6 +48,7 @@ func (a *API) Create(w http.ResponseWriter, r *http.Request) {
 		http.ResponseWriter(w).WriteHeader(http.StatusInternalServerError)
 		http.ResponseWriter(w).Write([]byte("Error creating message"))
 	}
+
 	http.ResponseWriter(w).WriteHeader(http.StatusOK)
 
 }

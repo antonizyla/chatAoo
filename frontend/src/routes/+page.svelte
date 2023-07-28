@@ -7,22 +7,35 @@
 	let userName: string | null = '';
 	let userID: string | null = '';
 	let mounted = false;
-	onMount(() => {
+	onMount(async () => {
 		// check local storage for a user tag
 		mounted = true;
 		userName = localStorage.getItem('userName');
 		userID = localStorage.getItem('userID');
 	});
 
+	async function linkUser(chatID: string, userID: string) {
+		console.log('linking user');
+		const link = await fetch(`http://localhost:8081/chats/link`, {
+			method: 'POST',
+			body: JSON.stringify({ chat_id: chatID, user_id: userID })
+		}).then((res) => {
+			res.status, res.statusText;
+		});
+		console.log(link);
+		// redirect to chatpage
+		window.location.href = `/chat/${chatID}`;
+		localStorage.removeItem('chatId');
+	}
+
 	$: {
 		if (form?.user && mounted) {
 			localStorage.setItem('userName', form.user.name);
 			localStorage.setItem('userID', form.user.user_id);
 			userName = form.user.username;
-			const chatId = localStorage.getItem('chatId');
-			if (chatId) {
-				window.location.href = `/chat/${chatId}`;
-				localStorage.removeItem('chatId');
+			const chatID = localStorage.getItem('chatId');
+			if (chatID) {
+				linkUser(chatID, form.user.user_id);
 			}
 		}
 	}

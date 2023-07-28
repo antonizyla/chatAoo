@@ -8,8 +8,7 @@
 
 	let ws: WebSocket;
 
-	let messages: any[] = [];
-	let users = new Map<string, string>();
+	import { messages, users, currentUser } from '$lib/messagesStores';
 
 	onMount(async () => {
 		// check if user exists on browser
@@ -22,6 +21,8 @@
 			// create store to store chat of user
 			localStorage.setItem('chatId', data.chat.id);
 		} else {
+			$currentUser = userID;
+
 			// load in the chats for the user
 			const prevMessages = await fetch(
 				`http://localhost:8081/messages/${data.chat.id}/${Date.now()}`,
@@ -35,24 +36,27 @@
 
 			prevUsers.map((item: { user_name: string; user_id: string }) => {
 				// @ts-ignore
-				users[item.user_id] = item.user_name;
+				$users[item.user_id] = item.user_name;
 			});
 
-			messages = [...messages, prevMessages][0];
+			$messages = [...$messages, prevMessages][0];
 
 			// websockets
 			ws = new WebSocket('ws://localhost:8081/ws?user_id=' + userID + '&chat_id=' + data.chat.id);
 			ws.onmessage = async (event) => {
 				// @ts-ignore
 				const wsMessage = JSON.parse(event.data);
-				messages = [...messages, wsMessage];
-				if (!users.has(wsMessage.user_id)) {
+				$messages = [...$messages, wsMessage];
+				// @ts-ignore
+				if ($users[wsMessage.user_id] === undefined) {
+					console.log('new user detected');
 					const user = await fetch(`http://localhost:8081/users/${wsMessage.user_id}`, {
 						method: 'GET'
 					}).then((res) => res.json());
 					// @ts-ignore
-					users[user.user_id] = user.name;
-					messages = messages;
+					$users[user.user_id] = user.name;
+					$messages = $messages;
+					console.log($users);
 				}
 			};
 		}
@@ -74,7 +78,6 @@
 	}
 
 	import Message from '$lib/Message.svelte';
-	import { json } from '@sveltejs/kit';
 </script>
 
 <!-- svelte-ignore non-top-level-reactive-declaration -->
@@ -82,13 +85,8 @@
 	Chat exists with id {data.chat.id} and name '{data.chat.name}' with description '{data.chat
 		.description}' You are currently logged in as '{userName}' with id '{userID}'
 
-	{#each messages as message}
-		<Message
-			sender_name={users[message.user_id]}
-			body={message.body}
-			time={message.created_at}
-			alignRight={message.sender_id == userID}
-		/>
+	{#each $messages as message}
+		<Message {message} />
 	{/each}
 
 	<input

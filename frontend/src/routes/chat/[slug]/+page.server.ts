@@ -1,18 +1,16 @@
-import type { PageServerLoad } from "../$types";
+import type { PageServerLoad } from '../$types';
 
 export const load = (async (event) => {
     const chatId = event.params.slug;
     // check with api if chat exists
-    // if chat exists, connect to chat otherwise give link to create one 
-    const chat = await fetch(`http://localhost:8081/chats/${chatId}`).then(res => res.json());
+    // if chat exists, connect to chat otherwise give link to create one
+    const chat = await fetch(`http://localhost:8081/chats/${chatId}`).then((res) => res.json());
 
-    console.log(chat)
+    console.log(chat);
 
     if (chat.name) {
-        return { chat: chat, exists: true }
+        return { chat: chat, exists: true };
     } else {
-        return { chat: null, exists: false }
+        return { chat: null, exists: false };
     }
-
 }) satisfies PageServerLoad;
-

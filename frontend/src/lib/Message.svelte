@@ -1,23 +1,25 @@
 <script lang="ts">
-	export let sender_name: string;
-	export let body: string;
-	export let time: string;
-	export let alignRight: boolean = false;
+	import { users, type message } from '$lib/messagesStores';
 
-	const timeStamp = new Date(time);
+	export let message: message;
+
+	const timeStamp = new Date(message.created_at);
 	let displayTime = timeStamp.toLocaleTimeString().slice(0, -3);
+
+	import MessageSettings from './MessageSettings.svelte';
 </script>
 
-<div class="message" class:alignRight>
+<div class="message">
 	<div class="title">
-		{sender_name}
+		{$users[message.user_id]}
 	</div>
 	<div class="content">
-		{body}
+		{message.body}
 	</div>
 	<div class="date">
 		{displayTime}
 	</div>
+	<MessageSettings {message} />
 </div>
 
 <style>
@@ -41,9 +43,5 @@
 	.date {
 		font-size: 10px;
 		margin-top: 5px;
-	}
-
-	.alignRight {
-		text-align: right;
 	}
 </style>

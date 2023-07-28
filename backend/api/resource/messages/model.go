@@ -19,8 +19,10 @@ type Message struct {
 	ID        uuid.UUID `json:"message_id"`
 	Content   string    `json:"body"`
 	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 	ChatId    uuid.UUID `json:"chat_id"`
 	UserId    uuid.UUID `json:"user_id"`
+	Deleted   bool      `json:"deleted"`
 }
 
 type SentMessage struct {

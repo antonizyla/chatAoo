@@ -9,12 +9,21 @@ import (
 	"backend/api/resource/user"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/cors"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/olahol/melody"
 )
 
 func New(db *pgxpool.Pool) *chi.Mux {
 	router := chi.NewRouter()
+	router.Use(cors.Handler(cors.Options{
+		AllowedOrigins:   []string{"https://*", "http://*"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: false,
+		MaxAge:           300, // Maximum value not ignored by any of major browsers
+	}))
 
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Hello World")
@@ -29,9 +38,10 @@ func New(db *pgxpool.Pool) *chi.Mux {
 	// messages
 	m := melody.New()
 	messageApi := message.New(db)
-	//router.Post("/messages", messageApi.Create)
 	router.Get("/messages/{chat_id}/{time_from}", messageApi.GetMessages)
-	router.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
+	router.Delete("/messages/{message_id}", messageApi.DeleteMessage)
+
+    router.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		m.HandleRequest(w, r)
 	})
 	m.HandleMessage(func(s *melody.Session, b []byte) {

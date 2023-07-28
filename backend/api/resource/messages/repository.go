@@ -19,6 +19,18 @@ func NewRepo(db *pgxpool.Pool) *Repository {
 	}
 }
 
+func (r *Repository) Delete(messageID uuid.UUID) (err error) {
+	query := `UPDATE messages SET deleted = true, updated_at = NOW() WHERE id = @messageID`
+	params := pgx.NamedArgs{
+		"messageID": messageID,
+	}
+	_, err = r.DB.Exec(context.Background(), query, params)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (r *Repository) Create(m Message) (message Message, err error) {
 
 	query := `Insert into messages (message_body, chat_id, user_id) values (@message_body, @chat_id, @user_id) RETURNING id, created_at`
@@ -49,7 +61,7 @@ func (r *Repository) userNameFromID(id uuid.UUID) (name string, err error) {
 
 func (r *Repository) GetMessages(chatID uuid.UUID, tFrom time.Time) (messages []Message, err error) {
 
-	query := `SELECT id, message_body, created_at, chat_id, user_id FROM messages WHERE chat_id = @chat_id AND created_at < @tFrom LIMIT 100 `
+	query := `SELECT id, message_body, created_at, updated_at, chat_id, user_id, deleted FROM messages WHERE chat_id = @chat_id AND created_at < @tFrom LIMIT 100 `
 	params := pgx.NamedArgs{
 		"chat_id": chatID,
 		"tFrom":   tFrom,
@@ -63,7 +75,7 @@ func (r *Repository) GetMessages(chatID uuid.UUID, tFrom time.Time) (messages []
 	messages = []Message{}
 	for rows.Next() {
 		var m Message
-		err = rows.Scan(&m.ID, &m.Content, &m.CreatedAt, &m.ChatId, &m.UserId)
+		err = rows.Scan(&m.ID, &m.Content, &m.CreatedAt, &m.UpdatedAt, &m.ChatId, &m.UserId, &m.Deleted)
 		if err != nil {
 			return []Message{}, err
 		}
