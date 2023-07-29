@@ -1,47 +1,33 @@
 <script lang="ts">
 	import { users, type message } from '$lib/messagesStores';
+	import { timeDisplay } from '$lib/timeDisplay';
 
 	export let message: message;
-
-	const timeStamp = new Date(message.created_at);
-	let displayTime = timeStamp.toLocaleTimeString().slice(0, -3);
-
 	import MessageSettings from './MessageSettings.svelte';
 </script>
 
-<div class="message">
-	<div class="title">
-		{$users[message.user_id]}
+<div class="flex flex-col bg-red-50 p-2 m-4">
+	<div class="bg-blue-50">
+		<div class="font-semibold text-lg">
+			{$users[message.user_id]}
+		</div>
+		{#if !message.deleted}
+			<div class="content">
+				{message.body}
+			</div>
+		{:else}
+			<div class="content">Message has been deleted</div>
+		{/if}
 	</div>
-	<div class="content">
-		{message.body}
+	<div class="flex flex-row justify-end bg-blue-100 gap-2">
+		{timeDisplay(message.created_at)}
+		{#if message.updated_at != message.created_at}
+			{#if message.deleted}
+				(deleted {timeDisplay(message.updated_at)})
+			{:else}
+				(edited {timeDisplay(message.updated_at)})
+			{/if}
+		{/if}
+		<MessageSettings {message} />
 	</div>
-	<div class="date">
-		{displayTime}
-	</div>
-	<MessageSettings {message} />
 </div>
-
-<style>
-	.message {
-		display: flex;
-		flex-direction: column;
-		background-color: #f0f0f0;
-		border-radius: 10px;
-		padding: 10px;
-		margin: 10px;
-	}
-
-	.title {
-		font-weight: bold;
-	}
-
-	.content {
-		margin-top: 5px;
-	}
-
-	.date {
-		font-size: 10px;
-		margin-top: 5px;
-	}
-</style>

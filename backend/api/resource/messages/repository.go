@@ -33,14 +33,14 @@ func (r *Repository) Delete(messageID uuid.UUID) (err error) {
 
 func (r *Repository) Create(m Message) (message Message, err error) {
 
-	query := `Insert into messages (message_body, chat_id, user_id) values (@message_body, @chat_id, @user_id) RETURNING id, created_at`
+	query := `Insert into messages (message_body, chat_id, user_id) values (@message_body, @chat_id, @user_id) RETURNING id, created_at, updated_at`
 	params := pgx.NamedArgs{
 		"message_body": m.Content,
 		"chat_id":      m.ChatId,
 		"user_id":      m.UserId,
 	}
 
-	er := r.DB.QueryRow(context.Background(), query, params).Scan(&m.ID, &m.CreatedAt)
+	er := r.DB.QueryRow(context.Background(), query, params).Scan(&m.ID, &m.CreatedAt, &m.UpdatedAt)
 	if er != nil {
 		return Message{}, er
 	}
@@ -61,7 +61,7 @@ func (r *Repository) userNameFromID(id uuid.UUID) (name string, err error) {
 
 func (r *Repository) GetMessages(chatID uuid.UUID, tFrom time.Time) (messages []Message, err error) {
 
-	query := `SELECT id, message_body, created_at, updated_at, chat_id, user_id, deleted FROM messages WHERE chat_id = @chat_id AND created_at < @tFrom LIMIT 100 `
+	query := `SELECT id, message_body, created_at, updated_at, chat_id, user_id, deleted FROM messages WHERE chat_id = @chat_id AND created_at < @tFrom ORDER BY created_at LIMIT 100`
 	params := pgx.NamedArgs{
 		"chat_id": chatID,
 		"tFrom":   tFrom,

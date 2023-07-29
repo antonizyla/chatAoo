@@ -80,7 +80,6 @@
 	import Message from '$lib/Message.svelte';
 </script>
 
-<!-- svelte-ignore non-top-level-reactive-declaration -->
 {#if data.exists}
 	Chat exists with id {data.chat.id} and name '{data.chat.name}' with description '{data.chat
 		.description}' You are currently logged in as '{userName}' with id '{userID}'
