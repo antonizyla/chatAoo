@@ -19,7 +19,7 @@ func main() {
 	defer db.Close()
 
 	// order of database tables to be created
-	tables := []string{"createChatTable", "createUsersTable", "createUsersChatTable", "createMessagesTable"}
+	tables := []string{"createChatTable", "createUsersTable", "createUsersChatTable", "createMessagesTable", "createReactionsTable"}
 
 	for _, table := range tables {
 		// read the file and execute the query

@@ -19,7 +19,7 @@ func (a *API) DeleteMessage(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Provided parameter seems to be malformed, %v", err.Error()), http.StatusBadRequest)
 		return
 	}
-	err = a.repo.Delete(msgUUID)
+	_, err = a.repo.Delete(msgUUID)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error deleting message, %v", err.Error()), http.StatusInternalServerError)
 		return
@@ -98,7 +98,6 @@ func (a *API) MessageWebsockets(s *melody.Session, msg []byte, lm *melody.Melody
 
 	if receivedMessage.ActionType == "newMessage" {
 		// check the values of the message
-		fmt.Println(receivedMessage)
 		if receivedMessage.ChatId == uuid.Nil || receivedMessage.MessageBody == "" || receivedMessage.UserId == uuid.Nil {
 			msg, _ = json.Marshal(`{"Status": "Error occurred unmarshalling message, 2"}`)
 			goto broadcast
@@ -119,9 +118,51 @@ func (a *API) MessageWebsockets(s *melody.Session, msg []byte, lm *melody.Melody
 	} else if receivedMessage.ActionType == "editMessage" {
 		// todo
 	} else if receivedMessage.ActionType == "deleteMessage" {
-		// todo
-	} else if receivedMessage.ActionType == "reaction" {
-		// todo
+		fmt.Println("Deleting a message")
+
+		// expects a message_id as uuid
+		if receivedMessage.MessageId == uuid.Nil {
+			msg, _ = json.Marshal(`{"Status": "message_id specified doesn't conform to uuid standard"}`)
+			goto broadcast
+		}
+
+		deleted, err := a.repo.Delete(receivedMessage.MessageId)
+		if err != nil {
+			msg, _ = json.Marshal(`{"Status": "Error occurred deleting messsage from database"}`)
+		}
+
+		msg, _ = json.Marshal(deleted)
+
+	} else if receivedMessage.ActionType == "addReaction" {
+		fmt.Println("Reaction to a message")
+
+		if receivedMessage.MessageId == uuid.Nil || receivedMessage.UserId == uuid.Nil {
+			msg, _ = json.Marshal(`{"Status": "message_id or chat_id specified doesn't conform to uuid standard"}`)
+			goto broadcast
+		}
+
+		err := a.repo.AddReaction(receivedMessage.MessageId, receivedMessage.UserId, receivedMessage.ReactionEmoji)
+		if err != nil {
+			msg, _ = json.Marshal(`{"Status": "could not create the reaction in the database"}`)
+			goto broadcast
+		}
+		fmt.Printf("Sending New Reaction to client, %v \n", receivedMessage.ReactionEmoji)
+
+	} else if receivedMessage.ActionType == "removeReaction" {
+
+		fmt.Println("Removing a Reaction to a message")
+
+		if receivedMessage.MessageId == uuid.Nil || receivedMessage.UserId == uuid.Nil {
+			msg, _ = json.Marshal(`{"Status": "message_id or chat_id specified doesn't conform to uuid standard"}`)
+			goto broadcast
+		}
+
+		err := a.repo.RemoveReaction(receivedMessage.MessageId, receivedMessage.UserId, receivedMessage.ReactionEmoji)
+		if err != nil {
+			msg, _ = json.Marshal(`{"Status": "could not delete the reaction in the database"}`)
+			goto broadcast
+		}
+
 	} else {
 		msg, _ = json.Marshal(`{"Status": "Error occurred unmarshalling message, type of action seems incorrect"}`)
 	}
@@ -130,6 +171,26 @@ broadcast:
 	lm.BroadcastFilter(msg, func(q *melody.Session) bool {
 		return q.Request.URL.Query().Get("chat_id") == s.Request.URL.Query().Get("chat_id")
 	})
+
+}
+
+func (a *API) GetReactions(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	chat_id := chi.URLParam(r, "chat_id")
+	chatUUID, err := uuid.FromString(chat_id)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error occurred parsing time: %v", err.Error()), http.StatusBadRequest)
+		return
+	}
+	reactions, err := a.repo.GetReactions(chatUUID)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error occured fetching messages from database: %v", err.Error()), http.StatusBadRequest)
+		return
+	}
+
+	json.NewEncoder(w).Encode(reactions)
 
 }
 

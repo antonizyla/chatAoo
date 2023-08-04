@@ -2,6 +2,7 @@ package message
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -19,16 +20,17 @@ func NewRepo(db *pgxpool.Pool) *Repository {
 	}
 }
 
-func (r *Repository) Delete(messageID uuid.UUID) (err error) {
-	query := `UPDATE messages SET deleted = true, updated_at = NOW() WHERE id = @messageID`
+func (r *Repository) Delete(messageID uuid.UUID) (msg DeletedMessage, err error) {
+	query := `UPDATE messages SET deleted = true, updated_at = NOW() WHERE id = @messageID returning id, updated_at`
 	params := pgx.NamedArgs{
 		"messageID": messageID,
 	}
-	_, err = r.DB.Exec(context.Background(), query, params)
+	msg = DeletedMessage{}
+	err = r.DB.QueryRow(context.Background(), query, params).Scan(&msg.MessageId, &msg.UpdatedAt)
 	if err != nil {
-		return err
+		return DeletedMessage{}, err
 	}
-	return nil
+	return msg, nil
 }
 
 func (r *Repository) Create(m Message) (message Message, err error) {
@@ -59,6 +61,30 @@ func (r *Repository) userNameFromID(id uuid.UUID) (name string, err error) {
 	return name, nil
 }
 
+func (r *Repository) GetReactions(chatId uuid.UUID) (reactions []ReactionToMessage, err error) {
+	query := `Select message_id, user_id, emoji from reactions where message_id in (select message_id from messages where chat_id = @chat_id) `
+	params := pgx.NamedArgs{
+		"chat_id": chatId,
+	}
+	rows, err := r.DB.Query(context.Background(), query, params)
+	if err != nil {
+		return []ReactionToMessage{}, err
+	}
+
+	reactions = []ReactionToMessage{}
+	for rows.Next() {
+		react := ReactionToMessage{}
+		err = rows.Scan(&react.MessageID, &react.UserID, &react.Reaction)
+		if err != nil {
+			return []ReactionToMessage{}, err
+		}
+		reactions = append(reactions, react)
+	}
+
+	return reactions, nil
+
+}
+
 func (r *Repository) GetMessages(chatID uuid.UUID, tFrom time.Time) (messages []Message, err error) {
 
 	query := `SELECT id, message_body, created_at, updated_at, chat_id, user_id, deleted FROM messages WHERE chat_id = @chat_id AND created_at < @tFrom ORDER BY created_at LIMIT 100`
@@ -84,4 +110,34 @@ func (r *Repository) GetMessages(chatID uuid.UUID, tFrom time.Time) (messages []
 
 	return messages, nil
 
+}
+
+func (r *Repository) AddReaction(messageID uuid.UUID, userID uuid.UUID, reaction string) (err error) {
+	query := `insert into reactions (message_id, user_id, emoji) values (@message_id, @user_id, @emoji)`
+	params := pgx.NamedArgs{
+		"message_id": messageID,
+		"user_id":    userID,
+		"emoji":      reaction,
+	}
+	_, err = r.DB.Query(context.Background(), query, params)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *Repository) RemoveReaction(messageID uuid.UUID, userID uuid.UUID, reaction string) (err error) {
+	query := `delete from reactions where message_id = @message_id and user_id = @user_id and emoji = @emoji`
+	params := pgx.NamedArgs{
+		"message_id": messageID,
+		"user_id":    userID,
+		"emoji":      reaction,
+	}
+
+	_, err = r.DB.Query(context.Background(), query, params)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	return nil
 }

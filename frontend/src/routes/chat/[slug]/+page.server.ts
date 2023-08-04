@@ -6,8 +6,6 @@ export const load = (async (event) => {
     // if chat exists, connect to chat otherwise give link to create one
     const chat = await fetch(`http://localhost:8081/chats/${chatId}`).then((res) => res.json());
 
-    console.log(chat);
-
     if (chat.name) {
         return { chat: chat, exists: true };
     } else {

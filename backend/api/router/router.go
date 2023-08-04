@@ -41,7 +41,7 @@ func New(db *pgxpool.Pool) *chi.Mux {
 	router.Get("/messages/{chat_id}/{time_from}", messageApi.GetMessages)
 	router.Delete("/messages/{message_id}", messageApi.DeleteMessage)
 
-    router.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		m.HandleRequest(w, r)
 	})
 	m.HandleMessage(func(s *melody.Session, b []byte) {
@@ -56,7 +56,8 @@ func New(db *pgxpool.Pool) *chi.Mux {
 	router.Delete("/chats/link/{chat_id}/{user_id}", chatApi.DeleteChatLink)
 	router.Post("/chats/link", chatApi.Link)
 	router.Get("/chats/{chat_id}/users", chatApi.GetUsersInChat)
-
+	router.Get("/chats/{chat_id}/messages/{time_from}", messageApi.GetMessages)
+    router.Get("/chats/{chat_id}/reactions", messageApi.GetReactions)
 	return router
 
 }

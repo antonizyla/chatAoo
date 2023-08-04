@@ -8,7 +8,7 @@
 
 	let ws: WebSocket;
 
-	import { messages, users, currentUser } from '$lib/messagesStores';
+	import { messages, users, currentUser, wsPayload, reactions } from '$lib/Messages/messagesStores';
 
 	onMount(async () => {
 		// check if user exists on browser
@@ -25,7 +25,7 @@
 
 			// load in the chats for the user
 			const prevMessages = await fetch(
-				`http://localhost:8081/messages/${data.chat.id}/${Date.now()}`,
+				`http://localhost:8081/chats/${data.chat.id}/messages/${Date.now()}`,
 				{ method: 'GET' }
 			).then((res) => res.json());
 
@@ -39,6 +39,20 @@
 				$users[item.user_id] = item.user_name;
 			});
 
+			// load the reactions of the messages
+			const chatReactions = await fetch(`http://localhost:8081/chats/${data.chat.id}/reactions`, {
+				method: 'GET'
+			}).then((res) => res.json());
+
+			chatReactions.map((item: any) => {
+				const itemReaction = { user_id: item.user_id, reaction: item.reaction };
+				if (!$reactions[item.message_id]) {
+					$reactions[item.message_id] = [itemReaction];
+				} else {
+					$reactions[item.message_id].push(itemReaction);
+				}
+			});
+
 			$messages = [...$messages, prevMessages][0];
 
 			// websockets
@@ -46,18 +60,59 @@
 			ws.onmessage = async (event) => {
 				// @ts-ignore
 				const wsMessage = JSON.parse(event.data);
-				$messages = [...$messages, wsMessage];
-				// @ts-ignore
-				if ($users[wsMessage.user_id] === undefined) {
-					console.log('new user detected');
-					const user = await fetch(`http://localhost:8081/users/${wsMessage.user_id}`, {
-						method: 'GET'
-					}).then((res) => res.json());
+				console.log(wsMessage);
+				if (wsMessage.user_id && wsMessage.chat_id && wsMessage.message_id) {
+					// new message received
+					console.log('New Message received');
+					$messages = [...$messages, wsMessage];
 					// @ts-ignore
-					$users[user.user_id] = user.name;
-					$messages = $messages;
-					console.log($users);
+					if ($users[wsMessage.user_id] === undefined) {
+						console.log('new user detected');
+						const user = await fetch(`http://localhost:8081/users/${wsMessage.user_id}`, {
+							method: 'GET'
+						}).then((res) => res.json());
+						// @ts-ignore
+						$users[user.user_id] = user.name;
+					}
+				} else if (wsMessage.message_id && wsMessage.updated_at) {
+					console.log('Message Deleted detected');
+					$messages.forEach((msg) => {
+						if (wsMessage.message_id == msg.message_id) {
+							msg.deleted = true;
+							msg.updated_at = wsMessage.updated_at;
+						}
+					});
+				} else if (
+					wsMessage.message_id &&
+					wsMessage.user_id &&
+					wsMessage.reaction_emoji &&
+					wsMessage.action_type == 'addReaction'
+				) {
+					const newReaction = { user_id: wsMessage.user_id, reaction: wsMessage.reaction_emoji };
+					if (!$reactions[wsMessage.message_id]) {
+						$reactions[wsMessage.message_id] = [newReaction];
+					} else {
+						$reactions[wsMessage.message_id].push(newReaction);
+					}
+					$reactions = $reactions;
+				} else if (
+					wsMessage.reaction_emoji &&
+					wsMessage.user_id &&
+					wsMessage.message_id &&
+					wsMessage.action_type == 'removeReaction'
+				) {
+					console.log('remove reaction ws recieved');
+					for (let i = 0; i < $reactions[wsMessage.message_id].length; i++) {
+						if (
+							$reactions[wsMessage.message_id][i].user_id === wsMessage.user_id &&
+							$reactions[wsMessage.message_id][i].reaction === wsMessage.reaction_emoji
+						) {
+							$reactions[wsMessage.message_id].splice(i, 1);
+						}
+					}
+					$reactions = $reactions;
 				}
+				$messages = $messages;
 			};
 		}
 	});
@@ -72,12 +127,21 @@
 				user_id: userID,
 				message: msg
 			};
-			ws.send(JSON.stringify(payload));
+			$wsPayload = JSON.stringify(payload);
 			msg = '';
 		}
 	}
 
-	import Message from '$lib/Message.svelte';
+	// everytime $payload changes send it to WebSocket
+	function sendws(_payload: any) {
+		if (ws) {
+			ws.send($wsPayload);
+		}
+	}
+
+	$: sendws($wsPayload);
+
+	import Message from '$lib/Messages/Message.svelte';
 </script>
 
 {#if data.exists}

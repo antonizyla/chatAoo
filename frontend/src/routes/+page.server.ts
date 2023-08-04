@@ -11,7 +11,6 @@ export const actions = {
 			body: JSON.stringify({ name: username })
 		}).then((res) => res.json());
 
-		console.log(user);
 		return { user };
 	}
 } satisfies Actions;
