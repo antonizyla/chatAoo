@@ -7,7 +7,7 @@
 	import Reactions from './Reactions.svelte';
 </script>
 
-<div class="flex flex-col bg-red-50 p-2 m-4">
+<div class="flex flex-col p-2 m-3 rounded-md">
 	<div class="bg-blue-50">
 		<div class="font-semibold text-lg">
 			{$users[message.user_id]}

@@ -142,11 +142,14 @@
 	$: sendws($wsPayload);
 
 	import Message from '$lib/Messages/Message.svelte';
+	import ListUsers from '$lib/Users/ListUsers.svelte';
 </script>
 
 {#if data.exists}
 	Chat exists with id {data.chat.id} and name '{data.chat.name}' with description '{data.chat
 		.description}' You are currently logged in as '{userName}' with id '{userID}'
+
+	<ListUsers chat={data.chat.id} />
 
 	{#each $messages as message}
 		<Message {message} />

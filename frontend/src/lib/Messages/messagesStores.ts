@@ -8,7 +8,6 @@ export type message = {
     updated_at: string
     deleted: boolean
     chat_id: string
-    reactions: reaction[]
 }
 
 export type reaction = {
