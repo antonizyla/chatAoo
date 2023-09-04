@@ -14,7 +14,7 @@
 		userID = localStorage.getItem('userID');
 	});
 
-	async function linkUser(chatID: string, userID: string) {
+async function linkUser(chatID: string, userID: string) {
 		console.log('linking user');
 		const link = await fetch(`http://localhost:8081/chats/link`, {
 			method: 'POST',

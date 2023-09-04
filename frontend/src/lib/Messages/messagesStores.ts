@@ -10,10 +10,13 @@ export type message = {
     chat_id: string
 }
 
-export type reaction = {
-    message_id: string
+export interface reaction {
     user_id: string
     emoji: string
+}
+
+export interface messageReaction extends reaction {
+    message_id: string
 }
 
 let msgs: message[] = []
@@ -22,6 +25,7 @@ export let messages = writable(msgs)
 export let users = writable(new Map<string, string>())
 export let currentUser = writable("")
 
-export let reactions = writable(new Map<string, { user_id: string; emoji: string }[]>())
+// holds a key of message to a list of reactions
+export let reactions = writable(new Map<string, reaction[]>())
 
 export let wsPayload = writable("Empty")

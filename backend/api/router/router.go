@@ -18,7 +18,7 @@ func New(db *pgxpool.Pool) *chi.Mux {
 	router := chi.NewRouter()
 	router.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"https://*", "http://*"},
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},
 		AllowCredentials: false,
@@ -34,6 +34,7 @@ func New(db *pgxpool.Pool) *chi.Mux {
 	router.Post("/users", usersApi.Create)
 	router.Get("/users/{id}", usersApi.Get)
 	router.Get("/users/{id}/linked-chats", usersApi.UsersChats)
+	router.Patch("/users/{id}", usersApi.UpdateUsername)
 
 	// messages
 	m := melody.New()
@@ -57,7 +58,7 @@ func New(db *pgxpool.Pool) *chi.Mux {
 	router.Post("/chats/link", chatApi.Link)
 	router.Get("/chats/{chat_id}/users", chatApi.GetUsersInChat)
 	router.Get("/chats/{chat_id}/messages/{time_from}", messageApi.GetMessages)
-    router.Get("/chats/{chat_id}/reactions", messageApi.GetReactions)
+	router.Get("/chats/{chat_id}/reactions", messageApi.GetReactions)
 	return router
 
 }

@@ -1,6 +1,8 @@
 version: "3.8"
 services:
   database:
+    volumes:
+      - "/etc/localtime:/etc/localtime:ro"
     image: 'postgres:latest'
     ports:
       - 5432:${DB_PORT}

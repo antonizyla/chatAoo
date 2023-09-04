@@ -19,6 +19,22 @@ func NewRepo(db *pgxpool.Pool) *Repository {
 	}
 }
 
+func (r *Repository) updateUserName(name string, userId uuid.UUID) (usr User, err error) {
+	user := User{userId, name}
+
+	query := `Update Users set username = @name where id = @id returning id`
+	params := pgx.NamedArgs{
+		"name": name,
+		"id":   userId,
+	}
+
+	er := r.DB.QueryRow(context.Background(), query, params).Scan(&user.ID)
+	if er != nil {
+		return User{}, er
+	}
+	return user, nil
+}
+
 func (r *Repository) createUser(name string) (usr User, err error) {
 	var user User
 	user.Name = name

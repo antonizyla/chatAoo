@@ -46,7 +46,7 @@
 
 			chatReactions.map((item: any) => {
 				const itemReaction = { user_id: item.user_id, reaction: item.reaction };
-				if (!$reactions[item.message_id]) {
+				if (!$reactions[item.message_id as keyof typeof $reactions]) {
 					$reactions[item.message_id] = [itemReaction];
 				} else {
 					$reactions[item.message_id].push(itemReaction);
@@ -143,9 +143,11 @@
 
 	import Message from '$lib/Messages/Message.svelte';
 	import ListUsers from '$lib/Users/ListUsers.svelte';
+	import Button from '$lib/components/Button/Button.svelte';
 </script>
 
 {#if data.exists}
+	<a href="/chat"><Button>Navigate To Your Chats</Button></a>
 	Chat exists with id {data.chat.id} and name '{data.chat.name}' with description '{data.chat
 		.description}' You are currently logged in as '{userName}' with id '{userID}'
 
@@ -171,4 +173,5 @@
 {:else}
 	<h1>404</h1>
 	<p>Chat does not exist</p>
+	<a href="/chat"><Button>Navigate To Your Chats</Button></a>
 {/if}

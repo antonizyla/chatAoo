@@ -2,10 +2,11 @@ package user
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/google/uuid"
+	"github.com/gofrs/uuid"
 )
 
 func (a *API) Create(w http.ResponseWriter, r *http.Request) {
@@ -35,9 +36,9 @@ func (a *API) Create(w http.ResponseWriter, r *http.Request) {
 
 func (a *API) Get(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-    w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 
-    param := chi.URLParam(r, "id")
+	param := chi.URLParam(r, "id")
 
 	if len(param) == len(uuid.UUID{}.String()) {
 		// get user by id
@@ -56,6 +57,44 @@ func (a *API) Get(w http.ResponseWriter, r *http.Request) {
 		}
 		json.NewEncoder(w).Encode(user)
 	}
+}
+
+func (a *API) UpdateUsername(w http.ResponseWriter, r *http.Request) {
+	//set cors header to *
+    w.Header().Set("Access-Control-Allow-Origin", "*")
+    w.Header().Set("Content-Type", "application/json")
+
+    param := chi.URLParam(r, "id")
+
+	var user User
+
+	uid, err := uuid.FromString(param)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("UUID formatted incorrectly %v", err.Error()), http.StatusBadRequest)
+		return
+	}
+
+	err = json.NewDecoder(r.Body).Decode(&user)
+	user.ID = uid
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if user.Name == "" {
+		http.Error(w, "name is empty", http.StatusBadRequest)
+		return
+	}
+
+	_, err = a.repo.updateUserName(user.Name, uid)
+	if err != nil {
+		fmt.Println("error updating username")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	http.ResponseWriter(w).WriteHeader(http.StatusOK)
+
 }
 
 func (a *API) UsersChats(w http.ResponseWriter, r *http.Request) {
