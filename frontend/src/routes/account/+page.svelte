@@ -1,4 +1,5 @@
 <script lang="ts">
+	import ChevronUp from '$lib/components/Accordion/chevron-up.svelte';
 	import Button from '$lib/components/Button/Button.svelte';
 	import { onMount } from 'svelte';
 
@@ -25,6 +26,17 @@
 			alert('Username Updated');
 			localStorage.setItem('userName', currentUserName);
 			displayName = currentUserName;
+		} else {
+			alert('Username Update Failed, Please Try Again');
+		}
+	}
+
+	let validName: boolean = true;
+	function validate() {
+		if (currentUserName.length < 3) {
+			validName = false;
+		} else {
+			validName = true;
 		}
 	}
 </script>
@@ -35,15 +47,22 @@
 		You are currently signed in as <div class="bg-red-50 inline">{displayName}</div>
 		with internal user id
 		<div class="bg-red-50 inline">{currentUser}</div>
-		<div class="">
-			Current UserName:
-			<input
-				class="bg-red-50 p-2"
-				type="text"
-				name="userName"
-				id="userName"
-				bind:value={currentUserName}
-			/>
+		<div class="flex flex-row items-center gap-2">
+			Current Username:
+			<div class="flex flex-col">
+				<input
+					class="bg-gray-50 p-2"
+					class:!bg-red-50={!validName}
+					type="text"
+					name="userName"
+					id="userName"
+					bind:value={currentUserName}
+					on:input={validate}
+				/>
+				{#if !validName}
+					<p class="text-red-500 text-sm">Username must be at least 3 characters long</p>
+				{/if}
+			</div>
 			<button on:click={changeUsername}>Change Username</button>
 		</div>
 	</div>
