@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import type { ActionData } from './$types';
 	import { enhance } from '$app/forms';
+	import Button from '$lib/components/Button/Button.svelte';
 	export let form: ActionData;
 
 	let userName: string | null = '';
@@ -14,7 +15,7 @@
 		userID = localStorage.getItem('userID');
 	});
 
-async function linkUser(chatID: string, userID: string) {
+	async function linkUser(chatID: string, userID: string) {
 		console.log('linking user');
 		const link = await fetch(`http://localhost:8081/chats/link`, {
 			method: 'POST',
@@ -43,13 +44,13 @@ async function linkUser(chatID: string, userID: string) {
 
 <div class="p-12 bg-red-100 w-fit mx-auto mt-20">
 	{#if userName || form?.user}
-		<div class="">
+		<div class="p-2">
 			You are currently signed in as <p class="bg-blue-100 inline">{userName || form?.user.name}</p>
 		</div>
-		<p>
-			Click <a class="bg-blue-100 border-blue-400 border-2 p-0.5" href="/chat">here</a> to go to create
-			or join a chat
-		</p>
+		<div class="flex flex-row p-2 gap-2">
+			<a href="/account"><Button size="small">Edit Account Details</Button></a>
+			<a href="/chat"><Button size="small">Create or Enter a chat</Button></a>
+		</div>
 	{:else}
 		<p>No User Identifier has been found in your browser</p>
 		<p>Create one below</p>

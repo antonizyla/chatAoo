@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import type { ActionData } from './$types';
 	import { enhance } from '$app/forms';
+	import Button from '$lib/components/Button/Button.svelte';
 	export let form: ActionData;
 
 	let existingChats: any[] = [];
@@ -38,6 +39,11 @@
 	Successfully joined Chat with name {form?.name} and url: /chat/{form.chat_id}
 	<button><a href={`/chat/${form.chat_id}`}>Launch Chat</a></button>
 {/if}
+
+<div class="flex flex-row gap-2 p-2">
+	<a href="/"><Button size="small">Navigate to Home</Button></a>
+	<a href="/account"><Button size="small">Edit Your Account Details</Button></a>
+</div>
 
 {#if existingChats.length > 0}
 	<h2>Chats you're already in</h2>

@@ -65,7 +65,9 @@
 			</div>
 			<button on:click={changeUsername}>Change Username</button>
 		</div>
-	</div>
+	    <a href="/chat"><Button>Navigate To Chats</Button></a>
+	    <a href="/"><Button>Navigate To Home</Button></a>
+    </div>
 {:else}
 	<p>You do not have an account stored in your browser</p>
 	<a href="/"><Button>Create an Account</Button></a>
