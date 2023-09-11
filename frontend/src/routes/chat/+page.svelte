@@ -27,13 +27,17 @@
 		<input type="text" name="name" placeholder="Chat Name" />
 		<input type="text" name="description" placeholder="Chat Description" />
 		<input type="text" name="userID" bind:value={userID} hidden />
-		<button type="submit"> Create Chat </button>
+		<button type="submit">
+			<Button size="small">Create Chat</Button>
+		</button>
 	</form>
 	<form class="m-4" action="?/joinChat" method="POST" use:enhance>
 		<h2>Join an existing Chat</h2>
 		<input type="text" name="uuid" placeholder="unique chat id" />
 		<input type="text" hidden bind:value={userID} name="userID" />
-		<button type="submit">Join Chat</button>
+		<button type="submit">
+			<Button size="small">Join Chat</Button>
+		</button>
 	</form>
 {:else}
 	Successfully joined Chat with name {form?.name} and url: /chat/{form.chat_id}
@@ -69,10 +73,6 @@
 
 <style lang="postcss">
 	input {
-		@apply border border-blue-400 p-0.5;
-	}
-
-	button {
-		@apply border border-blue-600 p-0.5;
+		@apply border border-blue-400 p-1;
 	}
 </style>
