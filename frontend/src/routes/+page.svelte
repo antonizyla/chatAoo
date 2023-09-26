@@ -1,7 +1,5 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import type { ActionData } from './$types';
-	import { enhance } from '$app/forms';
 	import Button from '$lib/components/Button/Button.svelte';
 
 	let userName: string | null = '';
@@ -18,14 +16,14 @@
 <div class="p-12 bg-red-100 w-fit mx-auto mt-20">
 	{#if userName}
 		<div class="p-2">
-			You are currently signed in as <p class="bg-blue-100 inline">{userName || form?.user.name}</p>
+			You are currently signed in as <p class="bg-blue-100 inline">{userName}</p>
 		</div>
 		<div class="flex flex-row p-2 gap-2">
 			<a href="/account"><Button size="small">Edit Account Details</Button></a>
 			<a href="/chat"><Button size="small">Create or Enter a chat</Button></a>
 		</div>
 	{:else}
-		<p>No User Identifier has been found in your browser</p>
+		<p class="p-2">No User Identifier has been found in your browser</p>
 		<a href="/account/create">
 			<Button>Create an Account</Button>
 		</a>

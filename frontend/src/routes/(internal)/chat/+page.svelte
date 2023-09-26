@@ -20,33 +20,10 @@
 	});
 </script>
 
-<h1>Welcome to Chat App</h1>
-{#if !form?.success}
-	<form class="m-4" action="?/createChat" method="POST" use:enhance>
-		<h2>Create a New Chat</h2>
-		<input type="text" name="name" placeholder="Chat Name" />
-		<input type="text" name="description" placeholder="Chat Description" />
-		<input type="text" name="userID" bind:value={userID} hidden />
-		<button type="submit">
-			<Button size="small">Create Chat</Button>
-		</button>
-	</form>
-	<form class="m-4" action="?/joinChat" method="POST" use:enhance>
-		<h2>Join an existing Chat</h2>
-		<input type="text" name="uuid" placeholder="unique chat id" />
-		<input type="text" hidden bind:value={userID} name="userID" />
-		<button type="submit">
-			<Button size="small">Join Chat</Button>
-		</button>
-	</form>
-{:else}
-	Successfully joined Chat with name {form?.name} and url: /chat/{form.chat_id}
-	<button><a href={`/chat/${form.chat_id}`}>Launch Chat</a></button>
-{/if}
-
 <div class="flex flex-row gap-2 p-2">
 	<a href="/"><Button size="small">Navigate to Home</Button></a>
 	<a href="/account"><Button size="small">Edit Your Account Details</Button></a>
+	<a href="/chat/create"><Button size="small">Create a New Chat</Button></a>
 </div>
 
 {#if existingChats.length > 0}
