@@ -2,7 +2,8 @@
 	import { enhance } from '$app/forms';
 	import Button from '$lib/components/Button/Button.svelte';
 	import { onMount } from 'svelte';
-	import type { ActionData } from '../../$types';
+	import type { ActionData } from './$types';
+	import { previousPage } from '$lib/stores/previousPageStore';
 
 	export let form: ActionData;
 
@@ -34,7 +35,7 @@
 		if (form?.user && mounted) {
 			localStorage.setItem('userName', form.user.name);
 			localStorage.setItem('userID', form.user.user_id);
-			window.location.href = '/';
+			window.location.href = $previousPage || '/chat';
 			username = form.user.username;
 			const chatID = localStorage.getItem('chatId');
 			if (chatID) {
