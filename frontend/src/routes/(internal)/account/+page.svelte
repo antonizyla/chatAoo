@@ -19,7 +19,7 @@
 	async function changeUsername() {
 		const update = await fetch(`http://localhost:8081/users/${currentUser}`, {
 			method: 'PATCH',
-			body: JSON.stringify({ name: currentUserName })
+			body: JSON.stringify({ name: currentUserName.trim() })
 		});
 		console.log(update);
 		if (update.status === 200) {
@@ -42,31 +42,40 @@
 </script>
 
 {#if accountExists}
-	<p class="p-2">Your Account Exists, Edit Your details Below</p>
-	<div class="p-2">
-		You are currently signed in as <div class="bg-red-50 inline">{displayName}</div>
-		with internal user id
-		<div class="bg-red-50 inline">{currentUser}</div>
-		<div class="flex flex-row items-center gap-2 m-2 p-2 border-text border-solid border w-fit">
-			Current Username:
-			<div class="flex flex-col">
-				<input
-					class="bg-primary-button/20 p-1.5 rounded-md"
-					class:!bg-red-50={!validName}
-					type="text"
-					name="userName"
-					id="userName"
-					bind:value={currentUserName}
-					on:input={validate}
-				/>
-				{#if !validName}
-					<p class="text-red-500 text-sm">Username must be at least 3 characters long</p>
-				{/if}
+	<div class="w-fit mx-auto pt-40">
+		<div class="p-2">
+			<div class="p-2 text-center">
+				You Are Currently Signed in as <div
+					class="inline bg-primary text-white p-2 rounded-md mx-2.5"
+				>
+					{displayName}
+				</div>
 			</div>
-			<button on:click={changeUsername}><Button size="small">Change Username</Button></button>
+			<div
+				class="flex flex-row items-center gap-2 m-2 p-2 border-text border-solid border w-fit rounded-md"
+			>
+				<div class="flex flex-col gap-1.5">
+					<input
+						class="bg-primary-button/20 p-2 rounded-md"
+						class:!bg-red-50={!validName}
+						type="text"
+						name="userName"
+						id="userName"
+						bind:value={currentUserName}
+						on:input={validate}
+						autofocus={true}
+					/>
+					{#if !validName}
+						<p class="text-red-500 text-sm">Username must be at least 3 characters long</p>
+					{/if}
+				</div>
+				<button on:click={changeUsername}><Button size="small">Change Username</Button></button>
+			</div>
+			<div class="p-2 flex flex-row justify-center gap-2">
+				<a href="/chat"><Button primary>Navigate To Chats</Button></a>
+				<a href="/"><Button>Navigate To Home</Button></a>
+			</div>
 		</div>
-		<a href="/chat"><Button>Navigate To Chats</Button></a>
-		<a href="/"><Button>Navigate To Home</Button></a>
 	</div>
 {:else}
 	<p>You do not have an account stored in your browser</p>

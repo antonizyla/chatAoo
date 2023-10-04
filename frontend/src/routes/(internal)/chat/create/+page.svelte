@@ -14,6 +14,11 @@
 			userID = storedUser;
 		}
 	});
+
+	$: if (form?.success) {
+		window.alert('Successfully joined the chat');
+		location.href = '/chat';
+	}
 </script>
 
 <form class="m-4" action="?/createChat" method="POST" use:enhance>

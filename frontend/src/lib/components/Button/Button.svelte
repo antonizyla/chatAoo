@@ -14,10 +14,10 @@
 		@apply inline-block cursor-pointer rounded-md font-sans font-medium text-text;
 	}
 	.primary {
-		@apply bg-primary-button transition duration-200 ease-out;
+		@apply bg-primary text-background transition duration-200 ease-out;
 	}
 	.secondary {
-		@apply bg-secondary-button transition duration-200 ease-out;
+		@apply bg-secondary transition duration-200 ease-out;
 	}
 	.medium {
 		@apply px-6 py-3;
@@ -29,9 +29,9 @@
 		@apply px-8 py-3;
 	}
 	.button.primary:hover {
-		@apply scale-105 shadow-2xl shadow-primary-button/90 transition duration-200 ease-in;
+		@apply scale-105 shadow-2xl shadow-primary/90 transition duration-200 ease-in;
 	}
 	.button.secondary:hover {
-		@apply scale-105 shadow-xl shadow-secondary-button/60 transition duration-200 ease-in;
+		@apply scale-105 shadow-xl shadow-secondary/60 transition duration-200 ease-in;
 	}
 </style>

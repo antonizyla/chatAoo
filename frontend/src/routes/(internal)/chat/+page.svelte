@@ -1,9 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import type { ActionData } from './$types';
-	import { enhance } from '$app/forms';
 	import Button from '$lib/components/Button/Button.svelte';
-	export let form: ActionData;
 
 	let existingChats: any[] = [];
 	let userID: string | null;
@@ -28,24 +26,33 @@
 
 {#if existingChats.length > 0}
 	<h2>Chats you're already in</h2>
-	{#each existingChats as chat}
-		<div class="">
-			<p>Name: {chat.name}, Description: {chat.description}</p>
-			<button><a href={`/chat/${chat.id}`}>Launch Chat</a></button>
-			<button
-				on:click={() => {
-					existingChats = existingChats.filter((c) => c.id !== chat.id);
-					// api call to remove from database
-				}}>Leave Chat</button
-			>
-			<button
-				on:click={() => {
-					// write to clipboard
-					navigator.clipboard.writeText(chat.id);
-				}}>Share Chat ID</button
-			>
-		</div>
-	{/each}
+	<div class="flex flex-col gap-2 p-2">
+		{#each existingChats as chat}
+			<div class="p-2 bg-gray-100 flex flex-row gap-0.5 justify-between">
+				<div class="flex flex-col gap-1.5">
+					<div>Name: {chat.name}</div>
+					<div>Description: {chat.description}</div>
+				</div>
+				<div class="text-right self-end">
+					<a href={`/chat/${chat.id}`}><Button size="small">Open Chat</Button></a>
+					<Button
+						size="small"
+						on:click={() => {
+							existingChats = existingChats.filter((c) => c.id !== chat.id);
+							// api call to remove from database
+						}}>Leave Chat</Button
+					>
+					<Button
+						size="small"
+						on:click={() => {
+							// write to clipboard
+							navigator.clipboard.writeText(chat.id);
+						}}>Share Chat ID</Button
+					>
+				</div>
+			</div>
+		{/each}
+	</div>
 {/if}
 
 <style lang="postcss">
