@@ -7,8 +7,8 @@
 	onMount(async () => {
 		const storedUser = localStorage.getItem('userID');
 		if (!storedUser) {
-			location.href = '/';
-			$previousPage = location.href;
+			window.location.href = '/';
+			localStorage.setItem('previousPage', window.location.href);
 		}
 	});
 </script>

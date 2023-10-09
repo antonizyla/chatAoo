@@ -41,6 +41,7 @@
 	}
 </script>
 
+<a href="/chat" class="p-2 block"><Button primary size="small">Home</Button></a>
 {#if accountExists}
 	<div class="w-fit mx-auto pt-40">
 		<div class="p-2">
@@ -70,10 +71,6 @@
 					{/if}
 				</div>
 				<button on:click={changeUsername}><Button size="small">Change Username</Button></button>
-			</div>
-			<div class="p-2 flex flex-row justify-center gap-2">
-				<a href="/chat"><Button primary>Navigate To Chats</Button></a>
-				<a href="/"><Button>Navigate To Home</Button></a>
 			</div>
 		</div>
 	</div>

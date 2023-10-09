@@ -7,7 +7,7 @@
 	import Reactions from './Reactions.svelte';
 </script>
 
-<div class="flex flex-col p-2 m-3 rounded-md">
+<div class="flex flex-col p-2 mx-6 ">
 	<div class="bg-blue-50">
 		<div class="font-semibold text-lg">
 			{$users[message.user_id]}
@@ -20,7 +20,7 @@
 			<div class="content">Message has been deleted</div>
 		{/if}
 	</div>
-	<div class="flex flex-row justify-between bg-blue-100 gap-2">
+	<div class="flex flex-row justify-between gap-2">
 		<div class="">
 			<Reactions {message} />
 		</div>

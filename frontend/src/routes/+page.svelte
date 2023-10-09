@@ -15,14 +15,18 @@
 
 <div class="p-12 w-fit mx-auto mt-20">
 	{#if userName}
-		<div class="p-3">
-			You are currently signed in as <p class="bg-blue-100 p-2 rounded-md inline mx-2">
-				{userName}
-			</p>
-		</div>
-		<div class="flex flex-row p-2 gap-2">
-			<a href="/account"><Button size="small">Edit Account Details</Button></a>
-			<a href="/chat"><Button primary size="small">Create or Enter a chat</Button></a>
+		<div class="flex flex-col items-center gap-2">
+			<div class="p-3">
+				You are currently signed in as <p
+					class="bg-primary text-background p-2 rounded-md inline mx-2"
+				>
+					{userName}
+				</p>
+			</div>
+			<div class="flex flex-row p-2 gap-2">
+				<a href="/account"><Button>Edit Account Details</Button></a>
+				<a href="/chat"><Button primary>Create or Enter a chat</Button></a>
+			</div>
 		</div>
 	{:else}
 		<p class="p-2">No User Identifier has been found in your browser</p>

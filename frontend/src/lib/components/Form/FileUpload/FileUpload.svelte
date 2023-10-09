@@ -7,6 +7,6 @@
 
 <style lang="postcss">
 	input[type='file']::file-selector-button {
-		@apply mr-10 inline-block scale-105 cursor-pointer rounded-md border-2 border-secondary-button bg-secondary-button px-6 py-3 shadow-2xl shadow-secondary-button transition duration-200 ease-in;
+		@apply mr-10 inline-block scale-105 cursor-pointer rounded-md border-2 border-secondary bg-secondary px-6 py-3 shadow-2xl shadow-secondary transition duration-200 ease-in;
 	}
 </style>

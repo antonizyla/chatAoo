@@ -10,7 +10,19 @@
 
 	import { messages, users, currentUser, wsPayload, reactions } from '$lib/Messages/messagesStores';
 
+	let UsersInChat: any = [];
+	let ChatData: any = [];
+
 	onMount(async () => {
+		UsersInChat = await fetch(`http://localhost:8081/chats/${data.chat.id}/users`, {
+			method: 'GET'
+		}).then((res) => res.json());
+		console.log(UsersInChat);
+		ChatData = await fetch(`http://localhost:8081/chats/${data.chat.id}`, {
+			method: 'GET'
+		}).then((res) => res.json());
+		console.log(ChatData);
+
 		// check if user exists on browser
 		// if not, redirect to login page
 
@@ -142,34 +154,57 @@
 	$: sendws($wsPayload);
 
 	import Message from '$lib/Messages/Message.svelte';
-	import ListUsers from '$lib/Users/ListUsers.svelte';
 	import Button from '$lib/components/Button/Button.svelte';
+
+	import Modal from '$lib/components/Modal/Modal.svelte';
+	let open: boolean = false;
 </script>
 
 {#if data.exists}
-	<a href="/chat"><Button>Navigate To Your Chats</Button></a>
-	Chat exists with id {data.chat.id} and name '{data.chat.name}' with description '{data.chat
-		.description}' You are currently logged in as '{userName}' with id '{userID}'
+	<div class="flex flex-row p-2">
+		<a class="block" href="/chat"><Button primary size="small">Navigate To Your Chats</Button></a>
+		<Button
+			size="small"
+			on:click={() => {
+				open = true;
+			}}>View Chat Details</Button
+		>
+	</div>
 
-	<ListUsers chat={data.chat.id} />
+	<Modal bind:showing={open}>
+		<h2 class="text-lg">Detailed Chat Data</h2>
+		<div class="">
+			<div class="">ChatID: {ChatData.id}</div>
+			<div class="">Chat Name: {ChatData.name}</div>
+			<div class="">Chat Description: {ChatData.description}</div>
+			<div class="">Created At: {ChatData.created_at}</div>
+			<div>
+				<div class="" />
+			</div>
+		</div></Modal
+	>
 
-	{#each $messages as message}
-		<Message {message} />
-	{/each}
+	<div class="divide-y divide-accent pt-4">
+		{#each $messages as message}
+			<Message {message} />
+		{/each}
+	</div>
 
-	<input
-		type="text"
-		class="border-gray-400 border"
-		name="msg"
-		id="msg"
-		bind:value={msg}
-		on:keydown={(e) => {
-			if (e.key === 'Enter' && msg != '') {
-				sendMessage();
-			}
-		}}
-	/>
-	<button on:click={sendMessage}>SEND</button>
+	<div class="w-10/12 flex flex-row justify-between mx-auto gap-2 py-6">
+		<input
+			type="text"
+			class="border-gray-400 border flex-grow p-2 rounded-md"
+			name="msg"
+			id="msg"
+			bind:value={msg}
+			on:keydown={(e) => {
+				if (e.key === 'Enter' && msg != '') {
+					sendMessage();
+				}
+			}}
+		/>
+		<Button classes="" primary on:click={sendMessage}>➤</Button>
+	</div>
 {:else}
 	<h1>404</h1>
 	<p>Chat does not exist</p>

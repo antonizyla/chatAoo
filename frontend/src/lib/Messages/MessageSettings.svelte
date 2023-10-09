@@ -51,7 +51,7 @@
 	role="tooltip"
 >
 	<div
-		class="absolute flex flex-col bg-red-400 origin-top-left translate-y-6 p-3"
+		class="absolute flex flex-col bg-red-400 origin-top-left translate-y-6 translate-x-[-48px] p-3"
 		class:hidden={!open}
 	>
 		<ul class="list-none">
@@ -91,6 +91,6 @@
 			open = !open;
 		}}
 	>
-		Options
+		⋮
 	</button>
 </div>
