@@ -1,31 +1,32 @@
 <script lang="ts">
-	import Button from '$lib/components/Button/Button.svelte';
+	import Button from '$lib/svelte-components/components/Button/Button.svelte';
 	import { onMount } from 'svelte';
 
 	export let chat: string;
-
-	let open: boolean = false;
-	function toggle() {
-		open = !open;
-	}
 
 	let users: { user_id: string; user_name: string }[] = [];
 
 	onMount(async () => {
 		const res = await fetch(`http://localhost:8081/chats/${chat}/users`);
 		users = await res.json();
-		console.log(users);
 	});
+
+	import Modal from '$lib/svelte-components/components/Modal/Modal.svelte';
+	let open: boolean = false;
 </script>
 
-<div class="flex flex-col gap-2 w-fit p-2">
-	<Button size="medium" on:click={toggle}>{!open ? 'Show Users List' : 'Close Users List'}</Button>
-	{#if open}
-		<div class="text-md">Users in this chat:</div>
-		<div class="text-sm">
+<Button
+	size="small"
+	on:click={() => {
+		open = !open;
+	}}>{!open ? 'Show Users List' : 'Close Users List'}</Button
+>
+
+<Modal bind:showing={open}>
+	<div class="text-md">Users in this chat:</div>
+	<div class="text-sm p-2">
 			{#each users as user}
-				<div class="">{user.user_name}</div>
+					<div class="px-1.5 text-text/80 text-sm">{user.user_name}</div>
 			{/each}
-		</div>
-	{/if}
-</div>
+	</div>
+</Modal>

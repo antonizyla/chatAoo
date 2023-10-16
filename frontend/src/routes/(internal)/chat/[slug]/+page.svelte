@@ -14,10 +14,6 @@
 	let ChatData: any = [];
 
 	onMount(async () => {
-		UsersInChat = await fetch(`http://localhost:8081/chats/${data.chat.id}/users`, {
-			method: 'GET'
-		}).then((res) => res.json());
-		console.log(UsersInChat);
 		ChatData = await fetch(`http://localhost:8081/chats/${data.chat.id}`, {
 			method: 'GET'
 		}).then((res) => res.json());
@@ -158,10 +154,12 @@
 
 	import Modal from '$lib/svelte-components/components/Modal/Modal.svelte';
 	let open: boolean = false;
+
+	import ListUsers from '$lib/Users/ListUsers.svelte';
 </script>
 
 {#if data.exists}
-	<div class="flex flex-row p-2">
+	<div class="flex flex-row p-2 gap-2">
 		<a class="block" href="/chat"><Button primary size="small">Navigate To Your Chats</Button></a>
 		<Button
 			size="small"
@@ -169,6 +167,7 @@
 				open = true;
 			}}>View Chat Details</Button
 		>
+		<ListUsers chat={data.chat.id} />
 	</div>
 
 	<Modal bind:showing={open}>
@@ -185,6 +184,9 @@
 	>
 
 	<div class="divide-y divide-accent pt-4">
+        {#if $messages.length == 0}
+            <div class="text-center text-text/95 text-xl p-12">Looks Like there are no Messages in this chat yet. Be the first to send one.</div>
+        {/if}
 		{#each $messages as message}
 			<Message {message} />
 		{/each}

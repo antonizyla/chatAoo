@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import Button from '$lib/components/Button/Button.svelte';
+	import Button from '$lib/svelte-components/components/Button/Button.svelte';
 	import { onMount } from 'svelte';
 	import type { ActionData } from './$types';
 	import { previousPage } from '$lib/stores/previousPageStore';
