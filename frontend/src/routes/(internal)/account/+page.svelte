@@ -1,6 +1,6 @@
 <script lang="ts">
-	import ChevronUp from '$lib/components/Accordion/chevron-up.svelte';
-	import Button from '$lib/components/Button/Button.svelte';
+	import ChevronUp from '$lib/svelte-components/components/Accordion/chevron-up.svelte';
+	import Button from '$lib/svelte-components/components/Button/Button.svelte';
 	import { onMount } from 'svelte';
 
 	let currentUser: string = '';

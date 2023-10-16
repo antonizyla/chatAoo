@@ -12,7 +12,6 @@
 			user_id: reaction.user_id,
 			message_id: message.message_id
 		};
-		console.log('removing reaction');
 		$wsPayload = JSON.stringify(payload);
 	}
 

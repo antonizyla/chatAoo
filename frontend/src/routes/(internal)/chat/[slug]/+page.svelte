@@ -154,9 +154,9 @@
 	$: sendws($wsPayload);
 
 	import Message from '$lib/Messages/Message.svelte';
-	import Button from '$lib/components/Button/Button.svelte';
+	import Button from '$lib/svelte-components/components/Button/Button.svelte';
 
-	import Modal from '$lib/components/Modal/Modal.svelte';
+	import Modal from '$lib/svelte-components/components/Modal/Modal.svelte';
 	let open: boolean = false;
 </script>
 

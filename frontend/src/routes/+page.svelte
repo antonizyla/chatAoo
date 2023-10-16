@@ -1,13 +1,11 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import Button from '$lib/components/Button/Button.svelte';
+	import Button from '$lib/svelte-components/components/Button/Button.svelte';
 
 	let userName: string | null = '';
 	let userID: string | null = '';
-	let mounted = false;
 	onMount(async () => {
 		// check local storage for a user tag
-		mounted = true;
 		userName = localStorage.getItem('userName');
 		userID = localStorage.getItem('userID');
 	});

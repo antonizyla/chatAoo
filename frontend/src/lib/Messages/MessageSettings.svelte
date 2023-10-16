@@ -51,10 +51,10 @@
 	role="tooltip"
 >
 	<div
-		class="absolute flex flex-col bg-red-400 origin-top-left translate-y-6 translate-x-[-48px] p-3"
+		class="absolute flex flex-col border-secondary rounded-md drop-shadow-md shadow-secondary border border-solid origin-top-left translate-y-6 translate-x-[-48px] p-4"
 		class:hidden={!open}
 	>
-		<ul class="list-none">
+		<ul class="list-none bg-secondary">
 			<li
 				on:mouseover={() => {
 					reactionOpen = true;
@@ -63,7 +63,7 @@
 			>
 				<button>React</button>
 				{#if reactionOpen}
-					<div class="flex flex-row gap-2">
+					<div class="flex flex-row gap-2 ">
 						{#each emojis as reaction}
 							<button
 								class="hover:scale-110"

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import Button from '$lib/components/Button/Button.svelte';
+	import Button from '$lib/svelte-components/components/Button/Button.svelte';
 
 	let existingChats: any[] = [];
 	let userID: string | null;

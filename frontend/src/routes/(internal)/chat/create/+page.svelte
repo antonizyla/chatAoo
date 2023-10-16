@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import type { ActionData } from './$types';
 	import { enhance } from '$app/forms';
-	import Button from '$lib/components/Button/Button.svelte';
+	import Button from '$lib/svelte-components/components/Button/Button.svelte';
 	export let form: ActionData;
 
 	let userID: string;
