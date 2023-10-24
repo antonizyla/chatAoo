@@ -18,7 +18,7 @@
 
 	async function changeUsername() {
 		const update = await fetch(`http://localhost:8081/users/${currentUser}`, {
-			method: 'PATCH',
+			method: 'POST',
 			body: JSON.stringify({ name: currentUserName.trim() })
 		});
 		console.log(update);

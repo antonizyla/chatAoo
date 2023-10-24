@@ -156,7 +156,15 @@
 	let open: boolean = false;
 
 	import ListUsers from '$lib/Users/ListUsers.svelte';
+
+    import ExapndingButton from '$lib/svelte-components/components/ExpandingButton/ExpandingButton.svelte';
+
 </script>
+
+<ExapndingButton>
+    <Button>A</Button>
+    <Button>ABaaaaaaaaaa</Button>
+</ExapndingButton>
 
 {#if data.exists}
 	<div class="flex flex-row p-2 gap-2">

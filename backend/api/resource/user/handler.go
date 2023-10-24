@@ -60,6 +60,9 @@ func (a *API) Get(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *API) UpdateUsername(w http.ResponseWriter, r *http.Request) {
+
+    fmt.Println("Updating username endpoint called")
+
 	//set cors header to *
     w.Header().Set("Access-Control-Allow-Origin", "*")
     w.Header().Set("Content-Type", "application/json")

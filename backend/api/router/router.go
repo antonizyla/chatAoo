@@ -19,7 +19,7 @@ func New(db *pgxpool.Pool) *chi.Mux {
 	router.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"https://*", "http://*"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		AllowedHeaders:   []string{"Accept", "Authorization","Origin", "Content-Language", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},
 		AllowCredentials: false,
 		MaxAge:           300, // Maximum value not ignored by any of major browsers
@@ -33,6 +33,7 @@ func New(db *pgxpool.Pool) *chi.Mux {
 	usersApi := user.New(db)
 	router.Post("/users", usersApi.Create)
 	router.Get("/users/{id}", usersApi.Get)
+	router.Post("/users/{id}", usersApi.UpdateUsername)
 	router.Get("/users/{id}/linked-chats", usersApi.UsersChats)
 
 	// messages
